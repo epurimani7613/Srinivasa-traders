@@ -8,11 +8,11 @@ const PORT = process.env.PORT || 3000;
 
 // Switching to the Direct Database connection port (5432) 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'db.fxscigkpgtzcrelhcemn.supabase.co', // Direct connection host address
+    user: 'postgres.fxscigkpgtzcrelhcemn',
+    host: 'aws-1-ap-northeast-1.pooler.supabase.com', // IPv4 Connection Pooler Host
     database: 'postgres',
     password: 'Manikanta@043028', // This MUST be your Database Password
-    port: 5432, // Direct database port
+    port: 6543, // Connection Pooler Port
     ssl: {
         rejectUnauthorized: false
     },
