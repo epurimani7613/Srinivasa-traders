@@ -1,0 +1,21 @@
+{
+  "name": "manikanta-kiranam",
+  "version": "1.0.0",
+  "description": "Local Web Billing Application - Manikanta Kiranam",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "node server.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix client"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
