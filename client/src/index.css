@@ -1502,12 +1502,15 @@ button[disabled] {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     box-sizing: border-box;
+    max-width: 58mm !important;
   }
 
   html {
-    width: 58mm;
-    margin: 0;
-    padding: 0;
+    width: 58mm !important;
+    max-width: 58mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
   }
 
   body {
@@ -1517,9 +1520,17 @@ button[disabled] {
     color: #000 !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 58mm;
-    max-width: 58mm;
-    overflow-x: hidden;
+    width: 58mm !important;
+    max-width: 58mm !important;
+    min-width: 58mm !important;
+    overflow-x: hidden !important;
+  }
+
+  #root {
+    width: 58mm !important;
+    max-width: 58mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* Hide app visual console elements */
@@ -1532,10 +1543,12 @@ button[disabled] {
 
   .print-area {
     display: block !important;
-    width: 58mm;
-    max-width: 58mm;
-    margin: 0;
-    padding: 0;
+    width: 58mm !important;
+    max-width: 58mm !important;
+    min-width: 58mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
   }
 
   .receipt-header {
