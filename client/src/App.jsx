@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  ShoppingBag, 
-  Package, 
-  Plus, 
-  Search, 
-  Trash2, 
-  Printer, 
-  X, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  ShoppingBag,
+  Package,
+  Plus,
+  Search,
+  Trash2,
+  Printer,
+  X,
+  CheckCircle2,
+  AlertCircle,
   Calendar,
   Clock,
   RefreshCw,
   Edit2,
   Mic,
-  MicOff
+  MicOff,
+  User
 } from 'lucide-react';
 
 const translations = {
@@ -32,6 +33,9 @@ const translations = {
     inventorySub: "List of available items. Click to edit.",
     searchProducts: "Search products...",
     noProductsFound: "No products found matching query.",
+    customerName: "Customer Name",
+    customerNamePlaceholder: "Enter customer name...",
+    clearCustomer: "Clear",
     billingTerminal: "Billing Terminal",
     billingTerminalSub: "Type product number or name to search and add",
     scanOrType: "Scan or type ID / Name...",
@@ -77,6 +81,9 @@ const translations = {
     inventorySub: "అందుబాటులో ఉన్న సరుకులు. సవరించడానికి క్లిక్ చేయండి.",
     searchProducts: "సరుకులను వెతకండి...",
     noProductsFound: "జాబితాలో ఏమీ లభించలేదు.",
+    customerName: "కస్టమర్ పేరు",
+    customerNamePlaceholder: "కస్టమర్ పేరు నమోదు చేయండి...",
+    clearCustomer: "తొలగించు",
     billingTerminal: "బిల్లింగ్ టెర్మినల్",
     billingTerminalSub: "సరుకు నంబర్ లేదా పేరు టైప్ చేసి బిల్లులో చేర్చండి",
     scanOrType: "కోడ్ లేదా పేరు టైప్ చేయండి...",
@@ -130,6 +137,9 @@ export default function App() {
   const [suggestions, setSuggestions] = useState([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  // Customer Name State
+  const [customerName, setCustomerName] = useState('');
 
   // Voice Command State
   const [isListening, setIsListening] = useState(false);
@@ -343,6 +353,21 @@ export default function App() {
   };
 
   // ── Billing Actions ────────────────────────────────────────────────────────
+  // Scroll helper for suggestions
+  const scrollToSuggestion = (index) => {
+    const suggestionBox = suggestionsRef.current;
+    if (suggestionBox) {
+      const items = suggestionBox.querySelectorAll('.suggestion-item');
+      if (items[index]) {
+        items[index].scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }
+    }
+  };
+
   // Add item to bill
   const addToBill = (product) => {
     setBillItems(prev => {
@@ -369,12 +394,20 @@ export default function App() {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (suggestions.length > 0) {
-        setSelectedSuggestionIndex(prev => (prev + 1) % suggestions.length);
+        setSelectedSuggestionIndex(prev => {
+          const newIndex = (prev + 1) % suggestions.length;
+          scrollToSuggestion(newIndex);
+          return newIndex;
+        });
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (suggestions.length > 0) {
-        setSelectedSuggestionIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
+        setSelectedSuggestionIndex(prev => {
+          const newIndex = (prev - 1 + suggestions.length) % suggestions.length;
+          scrollToSuggestion(newIndex);
+          return newIndex;
+        });
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
@@ -671,6 +704,37 @@ export default function App() {
         {/* ── Right Column: Billing Operations ── */}
         <section className="right-panel">
           
+          {/* Card: Customer Name Input */}
+          <div className="card customer-name-card">
+            <div className="card-header">
+              <div className="card-icon-wrap">
+                <User size={18} />
+              </div>
+              <h2 className="card-title">{t('customerName')}</h2>
+            </div>
+            
+            <div className="customer-name-input-wrap">
+              <input
+                type="text"
+                placeholder={t('customerNamePlaceholder')}
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="customer-name-input"
+                autoComplete="off"
+              />
+              {customerName && (
+                <button
+                  className="btn-clear-customer"
+                  onClick={() => setCustomerName('')}
+                  aria-label={t('clearCustomer')}
+                  title={t('clearCustomer')}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Card: Billing Counter */}
           <div className="card billing-counter-card">
             <div className="card-header">
@@ -859,6 +923,11 @@ export default function App() {
         <div className="receipt-header">
           <h1 className="receipt-shop-name">{t('shopName')}</h1>
           <p className="receipt-tagline">{t('shopTagline')}</p>
+          {customerName && (
+            <p className="receipt-customer">
+              {t('customerName')}: <strong>{customerName}</strong>
+            </p>
+          )}
           <hr className="receipt-rule" />
           <p className="receipt-date">{t('receiptDate')} {formatDateTime(currentTime)}</p>
         </div>
