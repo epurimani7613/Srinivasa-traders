@@ -11,7 +11,7 @@
 }
 
 :root {
-  /* HSL Color System */
+  /* HSL Color System - Dark Theme (Default) */
   --bg-gradient-start: HSL(222, 47%, 11%);
   --bg-gradient-end: HSL(228, 56%, 6%);
   
@@ -84,6 +84,57 @@
   --glow-indigo: 0 0 20px var(--accent-indigo-glow);
   --glow-amber: 0 0 20px var(--accent-amber-glow);
   --glow-rose: 0 0 20px var(--accent-rose-glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  /* Light Theme Colors */
+  --bg-gradient-start: HSL(210, 40%, 98%);
+  --bg-gradient-end: HSL(220, 30%, 95%);
+  
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-highlight: rgba(0, 0, 0, 0.02);
+  
+  --text-primary: HSL(222, 47%, 11%);
+  --text-secondary: HSL(215, 25%, 35%);
+  --text-muted: HSL(215, 16%, 46%);
+  
+  /* Accent colors remain vibrant in light mode */
+  --accent-emerald: HSL(142, 76%, 40%);
+  --accent-emerald-hover: HSL(142, 76%, 35%);
+  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+  
+  --accent-indigo: HSL(226, 96%, 58%);
+  --accent-indigo-hover: HSL(226, 96%, 52%);
+  --accent-indigo-glow: rgba(99, 102, 241, 0.25);
+  
+  --accent-amber: HSL(38, 92%, 45%);
+  --accent-amber-hover: HSL(38, 92%, 40%);
+  --accent-amber-glow: rgba(245, 158, 11, 0.3);
+  
+  --accent-rose: HSL(347, 87%, 55%);
+  --accent-rose-hover: HSL(347, 87%, 48%);
+  --accent-rose-glow: rgba(244, 63, 94, 0.25);
+  
+  /* Shadows for light mode */
+  --shadow-lg: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+/* Smooth theme transition */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  transition: background 0.3s ease;
+}
+
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 html {
@@ -199,6 +250,73 @@ h1, h2, h3, h4 {
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME TOGGLE BUTTON
+   ═══════════════════════════════════════════════════════════════════════════ */
+.theme-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-smooth);
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--accent-amber),
+    var(--accent-indigo)
+  );
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-amber);
+  transform: scale(1.05) rotate(15deg);
+}
+
+.theme-toggle-btn:hover::before {
+  opacity: 0.1;
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95) rotate(-15deg);
+}
+
+.theme-toggle-btn svg {
+  position: relative;
+  z-index: 1;
+  transition: transform var(--duration-normal) var(--ease-bounce);
+}
+
+.theme-toggle-btn:hover svg {
+  transform: rotate(180deg);
+}
+
+/* Light theme specific button styling */
+[data-theme="light"] .theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .theme-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-indigo);
+}
   grid-template-columns: 360px 1fr;
   gap: 2rem;
   padding: 2rem;
@@ -1108,6 +1226,110 @@ button[disabled] {
 .suggestion-item:hover .item-id,
 .suggestion-item.active .item-id {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME SPECIFIC ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  /* Adjust input backgrounds for better visibility */
+}
+
+[data-theme="light"] .form-group input,
+[data-theme="light"] .counter-input-wrap input,
+[data-theme="light"] .customer-name-input {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .form-group input:focus,
+[data-theme="light"] .counter-input-wrap input:focus,
+[data-theme="light"] .customer-name-input:focus {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--accent-indigo);
+}
+
+[data-theme="light"] .suggestion-box {
+  background: HSL(210, 40%, 98%);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .suggestion-box::before {
+  background: linear-gradient(
+    to bottom,
+    HSL(210, 40%, 98%) 0%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .suggestion-box::after {
+  background: linear-gradient(
+    to top,
+    HSL(210, 40%, 98%) 0%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .suggestion-item {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .suggestion-item:hover,
+[data-theme="light"] .suggestion-item.active {
+  background: var(--accent-indigo);
+  color: white;
+}
+
+[data-theme="light"] .card {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .bill-table thead {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .bill-table tbody tr {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .bill-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .qty-input {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .inventory-item {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .inventory-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .kpi-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 245, 255, 0.9));
+  border-left-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .site-header {
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .meta-date {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

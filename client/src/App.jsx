@@ -15,7 +15,9 @@ import {
   Edit2,
   Mic,
   MicOff,
-  User
+  User,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 const translations = {
@@ -140,6 +142,14 @@ export default function App() {
   
   // Customer Name State
   const [customerName, setCustomerName] = useState('');
+  
+  // Theme State
+  const [theme, setTheme] = useState(() => {
+    // Check localStorage or system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) return savedTheme;
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  });
 
   // Voice Command State
   const [isListening, setIsListening] = useState(false);
@@ -154,6 +164,12 @@ export default function App() {
   const suggestionsRef = useRef(null);
 
   // ── Effects ───────────────────────────────────────────────────────────────
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  
   // Fetch initial product list
   useEffect(() => {
     fetchProducts();
@@ -514,24 +530,34 @@ export default function App() {
           </div>
           
           <div className="header-meta" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+            {/* Theme Toggle Button */}
+            <button
+              className="theme-toggle-btn"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              aria-label="Toggle theme"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            
             {/* Language Selector Segmented Buttons */}
             <div className="language-selector" style={{ display: 'flex', gap: '0.25rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <button 
-                className={`btn btn-sm ${language === 'en' ? 'btn-accent' : 'btn-ghost'}`} 
+              <button
+                className={`btn btn-sm ${language === 'en' ? 'btn-accent' : 'btn-ghost'}`}
                 style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '5px', boxShadow: 'none', minWidth: '45px' }}
                 onClick={() => setLanguage('en')}
               >
                 ENG
               </button>
-              <button 
-                className={`btn btn-sm ${language === 'te' ? 'btn-accent' : 'btn-ghost'}`} 
+              <button
+                className={`btn btn-sm ${language === 'te' ? 'btn-accent' : 'btn-ghost'}`}
                 style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '5px', boxShadow: 'none', minWidth: '45px' }}
                 onClick={() => setLanguage('te')}
               >
                 తెలుగు
               </button>
-              <button 
-                className={`btn btn-sm ${language === 'mix' ? 'btn-accent' : 'btn-ghost'}`} 
+              <button
+                className={`btn btn-sm ${language === 'mix' ? 'btn-accent' : 'btn-ghost'}`}
                 style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '5px', boxShadow: 'none', minWidth: '45px' }}
                 onClick={() => setLanguage('mix')}
               >
