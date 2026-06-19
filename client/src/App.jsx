@@ -375,6 +375,37 @@ export default function App() {
     showTemporaryMsg(setProductMsg, `Editing "${prod.name}" (ID: ${prod.id})`, "success", 2000);
   };
 
+  // Delete product on double-click
+  const handleDeleteProduct = async (prod) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${prod.name} from the inventory?`
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/products/${prod.id}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Delete operation failed.");
+      }
+
+      // Remove from local state
+      setProducts(prev => prev.filter(p => p.id !== prod.id));
+      
+      // Remove from bill if present
+      setBillItems(prevBill => prevBill.filter(item => item.product.id !== prod.id));
+      
+      showTemporaryMsg(setProductMsg, `✔ "${prod.name}" deleted successfully.`, "success");
+    } catch (err) {
+      console.error(err);
+      showTemporaryMsg(setProductMsg, `⚠ ${err.message || "Failed to delete product."}`, "error");
+    }
+  };
+
   // ── Billing Actions ────────────────────────────────────────────────────────
   // Scroll helper for suggestions
   const scrollToSuggestion = (index) => {
@@ -515,15 +546,17 @@ export default function App() {
 
   // Filter products for inventory grid
   const isNumericInventorySearch = /^\d+$/.test(inventorySearch.trim());
-  const filteredProducts = products.filter(p => {
-    if (isNumericInventorySearch) {
-      // For pure numeric queries, check exact ID match first
-      return p.id === inventorySearch.trim();
-    }
-    // For text queries, use fuzzy/partial matching
-    return p.id.toLowerCase().includes(inventorySearch.toLowerCase()) ||
-           p.name.toLowerCase().includes(inventorySearch.toLowerCase());
-  });
+  const filteredProducts = products
+    .filter(p => {
+      if (isNumericInventorySearch) {
+        // For pure numeric queries, check exact ID match first
+        return p.id === inventorySearch.trim();
+      }
+      // For text queries, use fuzzy/partial matching
+      return p.id.toLowerCase().includes(inventorySearch.toLowerCase()) ||
+             p.name.toLowerCase().includes(inventorySearch.toLowerCase());
+    })
+    .sort((a, b) => Number(a.id) - Number(b.id)); // Sort by ID in ascending order
 
   return (
     <React.Fragment>
@@ -720,11 +753,12 @@ export default function App() {
             <ul className="inventory-list">
               {filteredProducts.length > 0 ? (
                 filteredProducts.map(p => (
-                  <li 
-                    key={p.id} 
+                  <li
+                    key={p.id}
                     className="inventory-item"
                     onClick={() => handleEditProductClick(p)}
-                    title="Click to edit details"
+                    onDoubleClick={() => handleDeleteProduct(p)}
+                    title="Click to edit • Double-click to delete"
                     style={{ cursor: 'pointer' }}
                   >
                     <span className="inv-id">{p.id}</span>
