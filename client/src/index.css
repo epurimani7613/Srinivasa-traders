@@ -1694,11 +1694,6 @@ button[disabled] {
     border-top: 1px dashed #000;
     line-height: 1.2;
   }
-
-  .receipt-table tr,
-  .receipt-row {
-    page-break-inside: avoid;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
