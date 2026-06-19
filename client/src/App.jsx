@@ -17,7 +17,9 @@ import {
   MicOff,
   User,
   Moon,
-  Sun
+  Sun,
+  Archive,
+  RotateCcw
 } from 'lucide-react';
 
 const translations = {
@@ -44,6 +46,12 @@ const translations = {
     addItem: "Add Item",
     activeInvoice: "Active Invoice",
     clearInvoice: "Clear Invoice",
+    parkBill: "Park Bill",
+    parkedBills: "Parked Bills",
+    noBillsParked: "No bills parked",
+    restoreBill: "Restore",
+    deleteBill: "Delete",
+    parkedAt: "Parked at",
     colSl: "Sl.",
     colCode: "Code",
     colName: "Product Name",
@@ -92,6 +100,12 @@ const translations = {
     addItem: "చేర్చు",
     activeInvoice: "ప్రస్తుత బిల్లు",
     clearInvoice: "బిల్లు తొలగించు",
+    parkBill: "బిల్లు పార్క్ చేయి",
+    parkedBills: "పార్క్ చేసిన బిల్లులు",
+    noBillsParked: "పార్క్ చేసిన బిల్లులు లేవు",
+    restoreBill: "తిరిగి తీసుకురా",
+    deleteBill: "తొలగించు",
+    parkedAt: "పార్క్ చేసిన సమయం",
     colSl: "వ.సంఖ్య",
     colCode: "కోడ్",
     colName: "సరుకు పేరు",
@@ -142,6 +156,13 @@ export default function App() {
   
   // Customer Name State
   const [customerName, setCustomerName] = useState('');
+  
+  // Parked Bills State with localStorage sync
+  const [parkedBills, setParkedBills] = useState(() => {
+    const saved = localStorage.getItem('parkedBills');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showParkedBillsDrawer, setShowParkedBillsDrawer] = useState(false);
   
   // Theme State
   const [theme, setTheme] = useState(() => {
@@ -220,6 +241,11 @@ export default function App() {
     setShowSuggestions(filtered.length > 0);
     setSelectedSuggestionIndex(0); // auto-highlight the first option
   }, [billingEntry, products]);
+
+  // Sync parkedBills with localStorage
+  useEffect(() => {
+    localStorage.setItem('parkedBills', JSON.stringify(parkedBills));
+  }, [parkedBills]);
 
   // ── Voice Command Setup ────────────────────────────────────────────────────
   const startVoiceCommand = () => {
@@ -507,7 +533,56 @@ export default function App() {
     if (!billItems.length) return;
     if (window.confirm("Are you sure you want to clear the entire bill?")) {
       setBillItems([]);
+      setCustomerName('');
       showTemporaryMsg(setBillingMsg, "✔ Current bill cleared.", "success");
+    }
+  };
+
+  // Park current bill
+  const handleParkBill = () => {
+    if (!billItems.length) {
+      showTemporaryMsg(setBillingMsg, "⚠ No items to park.", "error");
+      return;
+    }
+
+    const parkedBill = {
+      id: Date.now(),
+      customerName: customerName || 'Guest',
+      items: JSON.parse(JSON.stringify(billItems)), // Deep copy
+      parkedAt: new Date().toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    };
+
+    setParkedBills(prev => [...prev, parkedBill]);
+    setBillItems([]);
+    setCustomerName('');
+    showTemporaryMsg(setBillingMsg, `✔ Bill parked for ${parkedBill.customerName}.`, "success");
+  };
+
+  // Restore a parked bill
+  const handleRestoreBill = (parkedBill) => {
+    if (billItems.length > 0) {
+      showTemporaryMsg(setBillingMsg, "⚠ Please park or clear the current bill first.", "error");
+      return;
+    }
+
+    setBillItems(parkedBill.items);
+    setCustomerName(parkedBill.customerName === 'Guest' ? '' : parkedBill.customerName);
+    setParkedBills(prev => prev.filter(b => b.id !== parkedBill.id));
+    setShowParkedBillsDrawer(false);
+    showTemporaryMsg(setBillingMsg, `✔ Bill restored for ${parkedBill.customerName}.`, "success");
+  };
+
+  // Delete a parked bill
+  const handleDeleteParkedBill = (parkedBill) => {
+    if (window.confirm(`Are you sure you want to delete the parked bill for ${parkedBill.customerName}?`)) {
+      setParkedBills(prev => prev.filter(b => b.id !== parkedBill.id));
+      showTemporaryMsg(setBillingMsg, `✔ Parked bill deleted.`, "success");
     }
   };
 
@@ -576,6 +651,22 @@ export default function App() {
           </div>
           
           <div className="header-meta" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+            {/* Parked Bills Button */}
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => setShowParkedBillsDrawer(!showParkedBillsDrawer)}
+              style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              title={t('parkedBills')}
+            >
+              <Archive size={18} />
+              <span>{t('parkedBills')}</span>
+              {parkedBills.length > 0 && (
+                <span className="badge badge-sm badge-accent" style={{ position: 'absolute', top: '-5px', right: '-5px', minWidth: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                  {parkedBills.length}
+                </span>
+              )}
+            </button>
+            
             {/* Theme Toggle Button */}
             <button
               className="theme-toggle-btn"
@@ -618,6 +709,67 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {/* Parked Bills Drawer */}
+      {showParkedBillsDrawer && (
+        <div className="parked-bills-overlay" onClick={() => setShowParkedBillsDrawer(false)}>
+          <div className="parked-bills-drawer" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header">
+              <h3>{t('parkedBills')} ({parkedBills.length})</h3>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowParkedBillsDrawer(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="drawer-content">
+              {parkedBills.length === 0 ? (
+                <div className="empty-state">
+                  <Archive size={48} style={{ opacity: 0.3 }} />
+                  <p>{t('noBillsParked')}</p>
+                </div>
+              ) : (
+                <div className="parked-bills-list">
+                  {parkedBills.map((bill) => (
+                    <div key={bill.id} className="parked-bill-item">
+                      <div className="bill-info">
+                        <div className="bill-customer">
+                          <User size={16} />
+                          <strong>{bill.customerName}</strong>
+                        </div>
+                        <div className="bill-meta">
+                          <span className="bill-items">{bill.items.length} items</span>
+                          <span className="bill-total">
+                            {formatINR(bill.items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0))}
+                          </span>
+                        </div>
+                        <div className="bill-time">
+                          <Clock size={12} />
+                          <span>{bill.parkedAt}</span>
+                        </div>
+                      </div>
+                      <div className="bill-actions">
+                        <button
+                          className="btn btn-sm btn-accent"
+                          onClick={() => handleRestoreBill(bill)}
+                          title={t('restoreBill')}
+                        >
+                          <RotateCcw size={14} />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-ghost"
+                          onClick={() => handleDeleteParkedBill(bill)}
+                          title={t('deleteBill')}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="app-layout">
         {/* ── Premium KPI Stats Bar (Grid Column Span) ── */}
@@ -902,9 +1054,15 @@ export default function App() {
                   <h2 className="card-title">{t('activeInvoice')}</h2>
                 </div>
                 {billItems.length > 0 && (
-                  <button className="btn btn-ghost btn-sm" onClick={handleClearBill}>
-                    {t('clearInvoice')}
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button className="btn btn-accent btn-sm" onClick={handleParkBill} title="Save current bill and start new one">
+                      <Archive size={14} />
+                      {t('parkBill')}
+                    </button>
+                    <button className="btn btn-ghost btn-sm" onClick={handleClearBill}>
+                      {t('clearInvoice')}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
