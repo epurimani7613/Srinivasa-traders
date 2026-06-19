@@ -1504,6 +1504,12 @@ button[disabled] {
     box-sizing: border-box;
   }
 
+  html {
+    width: 58mm;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
     background: #fff !important;
     font-family: 'Courier New', Courier, monospace;
@@ -1513,6 +1519,7 @@ button[disabled] {
     padding: 0 !important;
     width: 58mm;
     max-width: 58mm;
+    overflow-x: hidden;
   }
 
   /* Hide app visual console elements */
