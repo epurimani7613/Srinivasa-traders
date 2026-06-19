@@ -205,9 +205,16 @@ export default function App() {
     }
 
     const query = billingEntry.toLowerCase();
-    const filtered = products.filter(
-      p => p.id.toLowerCase().includes(query) || p.name.toLowerCase().includes(query)
-    );
+    const isNumericQuery = /^\d+$/.test(billingEntry.trim());
+    
+    const filtered = products.filter(p => {
+      if (isNumericQuery) {
+        // For pure numeric queries, check exact ID match first
+        return p.id === billingEntry.trim();
+      }
+      // For text queries, use fuzzy/partial matching
+      return p.id.toLowerCase().includes(query) || p.name.toLowerCase().includes(query);
+    });
     
     setSuggestions(filtered.slice(0, 5)); // Limit to 5 suggestions
     setShowSuggestions(filtered.length > 0);
@@ -507,10 +514,16 @@ export default function App() {
   };
 
   // Filter products for inventory grid
-  const filteredProducts = products.filter(
-    p => p.id.toLowerCase().includes(inventorySearch.toLowerCase()) || 
-         p.name.toLowerCase().includes(inventorySearch.toLowerCase())
-  );
+  const isNumericInventorySearch = /^\d+$/.test(inventorySearch.trim());
+  const filteredProducts = products.filter(p => {
+    if (isNumericInventorySearch) {
+      // For pure numeric queries, check exact ID match first
+      return p.id === inventorySearch.trim();
+    }
+    // For text queries, use fuzzy/partial matching
+    return p.id.toLowerCase().includes(inventorySearch.toLowerCase()) ||
+           p.name.toLowerCase().includes(inventorySearch.toLowerCase());
+  });
 
   return (
     <React.Fragment>
