@@ -287,6 +287,8 @@ h1, h2, h3, h4 {
   background: rgba(255, 255, 255, 0.12);
   border-color: var(--accent-amber);
   transform: scale(1.05) rotate(15deg);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    PARKED BILLS DRAWER
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -434,8 +436,6 @@ h1, h2, h3, h4 {
   }
 }
 
-}
-
 .theme-toggle-btn:hover::before {
   opacity: 0.1;
 }
@@ -463,10 +463,10 @@ h1, h2, h3, h4 {
 [data-theme="light"] .theme-toggle-btn:hover {
   background: rgba(0, 0, 0, 0.08);
   border-color: var(--accent-indigo);
-}
   grid-template-columns: 360px 1fr;
   gap: 2rem;
   padding: 2rem;
+}
 }
 
 .left-panel {
