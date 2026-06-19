@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
