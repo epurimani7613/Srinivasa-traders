@@ -1884,19 +1884,20 @@ button[disabled] {
     justify-content: center;
   }
 
+  .fixed-mobile-footer.fixed { position: fixed !important; }
+  .fixed-mobile-footer.bottom-0 { bottom: 0 !important; }
+  .fixed-mobile-footer.left-0 { left: 0 !important; }
+  .fixed-mobile-footer.right-0 { right: 0 !important; }
+  .fixed-mobile-footer.z-50 { z-index: 50 !important; }
+  .fixed-mobile-footer.bg-slate-900 { background-color: #0f172a !important; }
+  .fixed-mobile-footer.p-4 { padding: 1rem !important; }
+  .fixed-mobile-footer.shadow-lg { box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.5) !important; }
+
   .bill-summary-card {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    border-radius: 0;
-    border-top: 1px solid var(--glass-border);
-    background: var(--card-bg);
-    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.4);
     margin: 0;
-    padding: 1rem 1.5rem;
-    transform: none !important;
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid var(--glass-border);
     flex-direction: row;
     align-items: center;
     backdrop-filter: var(--blur);
