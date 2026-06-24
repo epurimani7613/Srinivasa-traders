@@ -2517,3 +2517,129 @@ button[disabled] {
     padding-bottom: 130px;
   }
 }
+
+/* CSS Particle Background Motion Graphics */
+.css-particle-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, HSL(222, 47%, 13%) 0%, HSL(228, 56%, 5%) 100%);
+}
+
+.css-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-indigo);
+  border-radius: 50%;
+  opacity: 0.15;
+  filter: blur(0.5px);
+  animation: float-particle linear infinite;
+  box-shadow: 0 0 10px var(--accent-indigo), 0 0 20px var(--accent-indigo);
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translate(0, 100vh) scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.35;
+  }
+  90% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(150px, -10vh) scale(1.3) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Glassmorphic Animated CSS Logo */
+.css-animated-logo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.logo-glow {
+  position: absolute;
+  width: 130%;
+  height: 130%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: logo-pulsate 3s ease-in-out infinite alternate;
+}
+
+.logo-bag {
+  width: 28px;
+  height: 32px;
+  position: relative;
+  animation: logo-float 4s ease-in-out infinite;
+  z-index: 2;
+}
+
+.logo-handle {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  position: absolute;
+  top: -2px;
+  left: 6px;
+}
+
+.logo-body {
+  width: 100%;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(99, 102, 241, 0.25));
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #fff, 0 0 15px #fff;
+  animation: logo-sparkle 2s infinite ease-in-out;
+  opacity: 0;
+}
+
+.sp-1 { top: 10%; left: 15%; animation-delay: 0.2s; }
+.sp-2 { bottom: 15%; right: 10%; animation-delay: 0.8s; }
+.sp-3 { top: 40%; right: 20%; animation-delay: 1.4s; }
+
+@keyframes logo-float {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes logo-pulsate {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(1.1); opacity: 0.9; }
+}
+
+@keyframes logo-sparkle {
+  0%, 100% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+}

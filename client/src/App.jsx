@@ -24,8 +24,6 @@ import {
 } from 'lucide-react';
 import { printReceipt } from './bluetoothPrinter';
 import { attachAudioInitListeners, playClick, playAddSuccess, playDelete, playPrint } from './soundEffects';
-import ThreeDBackground from './ThreeDBackground';
-import ThreeDLogo from './ThreeDLogo';
 
 const translations = {
   en: {
@@ -134,9 +132,43 @@ const translations = {
     receiptTotalQty: "మొత్తం పరిమాణం:",
     receiptGrandTotal: "మొత్తం బిల్లు:",
     receiptFooter: "మా వద్ద కొనుగోలు చేసినందుకు ధన్యవాదాలు! దయచేసి మళ్ళీ విచ్చేయండి.",
-    qtyFor: "పరిమాణం"
   }
 };
+
+// Stable CSS-based particle background
+function CSSParticleBackground() {
+  // Use a fixed set of particles to avoid rendering mismatch between server/client (or random differences)
+  const particles = Array.from({ length: 30 });
+  return (
+    <div className="css-particle-background">
+      {particles.map((_, i) => {
+        const style = {
+          left: `${(i * 13) % 100}%`,
+          top: `${(i * 7) % 100}%`,
+          animationDelay: `${i * 0.4}s`,
+          animationDuration: `${12 + (i % 6) * 3}s`,
+        };
+        return <div key={i} className="css-particle" style={style} />;
+      })}
+    </div>
+  );
+}
+
+// Stable glassmorphic CSS animated logo
+function CSSAnimatedLogo() {
+  return (
+    <div className="css-animated-logo">
+      <div className="logo-glow" />
+      <div className="logo-bag">
+        <div className="logo-handle" />
+        <div className="logo-body" />
+      </div>
+      <div className="sparkle sp-1" />
+      <div className="sparkle sp-2" />
+      <div className="sparkle sp-3" />
+    </div>
+  );
+}
 
 export default function App() {
   // ── State ─────────────────────────────────────────────────────────────────
@@ -733,15 +765,15 @@ export default function App() {
 
   return (
     <React.Fragment>
-      <ThreeDBackground />
+      <CSSParticleBackground />
       {/* ═══════════════════════════════════════════════════════════════════════
          APPLICATION CONSOLE
          ═══════════════════════════════════════════════════════════════════════ */}
       <header className="site-header">
         <div className="header-inner">
           <div className="header-logo">
-            <div className="logo-container" style={{ width: '60px', height: '60px', overflow: 'visible', background: 'none', border: 'none', boxShadow: 'none' }}>
-              <ThreeDLogo />
+            <div className="logo-container" style={{ width: '48px', height: '48px', position: 'relative' }}>
+              <CSSAnimatedLogo />
             </div>
             <div className="logo-text scroll-marquee-container">
               <div className="scroll-marquee-text-wrap">
