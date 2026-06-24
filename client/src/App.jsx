@@ -141,7 +141,7 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [inventorySearch, setInventorySearch] = useState('');
   const [billItems, setBillItems] = useState([]);
-  const [language, setLanguage] = useState('mix'); // 'en', 'te', 'mix'
+  const [language, setLanguage] = useState('en'); // 'en', 'te'
   
   // Product Form State
   const [formId, setFormId] = useState('');
@@ -297,17 +297,7 @@ export default function App() {
   const t = (key) => {
     if (language === 'en') return translations.en[key];
     if (language === 'te') return translations.te[key];
-    
-    // MIX mode
-    if (key === 'shopName') return "Srinivasa Traders (శ్రీనివాస ట్రేడర్స్)";
-    if (key === 'shopTagline') return "మీ నమ్మకమైన భాగస్వామి · Your Trusted Trading Partner";
-    if (key === 'receiptFooter') return "Thank you for shopping with us! · ధన్యవాదాలు! దయచేసి మళ్ళీ విచ్చేయండి.";
-    
-    // Generic combination for other elements
-    const enVal = translations.en[key];
-    const teVal = translations.te[key];
-    if (enVal === teVal) return enVal;
-    return `${enVal} / ${teVal}`;
+    return translations.en[key];
   };
 
   // ── API Actions ────────────────────────────────────────────────────────────
@@ -756,13 +746,6 @@ export default function App() {
                 onClick={() => { playClick(); setLanguage('te'); }}
               >
                 తెలుగు
-              </button>
-              <button
-                className={`btn btn-sm ${language === 'mix' ? 'btn-accent' : 'btn-ghost'}`}
-                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '5px', boxShadow: 'none', minWidth: '45px' }}
-                onClick={() => { playClick(); setLanguage('mix'); }}
-              >
-                MIX
               </button>
             </div>
 
