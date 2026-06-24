@@ -18,7 +18,7 @@ import {
   User
 } from 'lucide-react';
 import ThreeDLogo from './client/src/ThreeDLogo';
-import ThreeDBackground from './client/src/ThreeDBackground';
+import DataBackground from './client/src/DataBackground';
 
 const translations = {
   en: {
@@ -515,8 +515,8 @@ export default function App() {
 
   return (
     <React.Fragment>
-      {/* 3D Particle Background */}
-      <ThreeDBackground />
+      {/* 3D Data Visualization Background */}
+      <DataBackground />
 
       {/* ═══════════════════════════════════════════════════════════════════════
          APPLICATION CONSOLE
