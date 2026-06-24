@@ -135,12 +135,18 @@ const translations = {
   }
 };
 
-// Stable CSS-based particle background
-function CSSParticleBackground() {
-  // Use a fixed set of particles to avoid rendering mismatch between server/client (or random differences)
+// Stable CSS-based particle, grid, and data bar background
+function CSSMotionBackground() {
   const particles = Array.from({ length: 30 });
+  const bars = Array.from({ length: 15 });
   return (
-    <div className="css-particle-background">
+    <div className="css-motion-background">
+      {/* Perspective Grid Floor */}
+      <div className="css-grid-perspective">
+        <div className="css-grid-floor" />
+      </div>
+
+      {/* Floating Particles */}
       {particles.map((_, i) => {
         const style = {
           left: `${(i * 13) % 100}%`,
@@ -150,6 +156,24 @@ function CSSParticleBackground() {
         };
         return <div key={i} className="css-particle" style={style} />;
       })}
+
+      {/* Glowing Data Bars */}
+      <div className="css-data-bars-container">
+        {bars.map((_, i) => {
+          const style = {
+            left: `${(i * 7.1) % 100}%`,
+            animationDelay: `${i * 0.3}s`,
+            animationDuration: `${4 + (i % 4) * 1.5}s`,
+            height: `${30 + (i * 17) % 60}px`
+          };
+          return (
+            <div key={i} className={`css-data-bar bar-style-${i % 3}`} style={style}>
+              <div className="css-bar-glow" />
+              <div className="css-bar-tip" />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -765,7 +789,7 @@ export default function App() {
 
   return (
     <React.Fragment>
-      <CSSParticleBackground />
+      <CSSMotionBackground />
       {/* ═══════════════════════════════════════════════════════════════════════
          APPLICATION CONSOLE
          ═══════════════════════════════════════════════════════════════════════ */}
