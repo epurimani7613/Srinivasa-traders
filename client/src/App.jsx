@@ -176,6 +176,7 @@ export default function App() {
   // Voice Command State
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(true);
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   // Time & Date State
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -629,6 +630,12 @@ export default function App() {
     }
   };
 
+  const handleSearchFocus = () => {
+    if (window.innerWidth <= 768) {
+      setShowSearchModal(true);
+    }
+  };
+
   // ── Calculation Helpers ────────────────────────────────────────────────────
   const totalItemsCount = billItems.reduce((sum, item) => sum + item.qty, 0);
   const grandTotalAmount = billItems.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
@@ -1015,6 +1022,8 @@ export default function App() {
                 value={billingEntry}
                 onChange={(e) => setBillingEntry(e.target.value)}
                 onKeyDown={handleBillingKeyDown}
+                onFocus={handleSearchFocus}
+                onClick={handleSearchFocus}
                 autoComplete="off"
                 autoFocus
                 style={{ paddingRight: '2.5rem' }}
@@ -1121,18 +1130,41 @@ export default function App() {
                     <tr key={`${item.product.id}-${index}`}>
                       <td className="col-sl">{index + 1}</td>
                       <td className="col-pid">{item.product.id}</td>
-                      <td className="col-name">{item.product.name}</td>
+                      <td className="col-name">
+                        <div className="item-name-text">{item.product.name}</div>
+                        <div className="quick-add-strip">
+                          <button type="button" className="quick-add-btn" onClick={() => handleQtyChange(index, item.qty + 2)}>+2</button>
+                          <button type="button" className="quick-add-btn" onClick={() => handleQtyChange(index, item.qty + 5)}>+5</button>
+                          <button type="button" className="quick-add-btn" onClick={() => handleQtyChange(index, item.qty + 10)}>+10</button>
+                        </div>
+                      </td>
                       <td className="col-price">{formatINR(item.product.price)}</td>
                       <td className="col-qty">
-                        <input
-                          type="number"
-                          inputMode="numeric"
-                          className="qty-input"
-                          min="1"
-                          value={item.qty}
-                          onChange={(e) => handleQtyChange(index, e.target.value)}
-                          aria-label={`${t('qtyFor')} ${item.product.name}`}
-                        />
+                        <div className="qty-stepper">
+                          <button 
+                            type="button" 
+                            className="stepper-btn minus"
+                            onClick={() => handleQtyChange(index, Math.max(1, item.qty - 1))}
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            className="qty-input"
+                            min="1"
+                            value={item.qty}
+                            onChange={(e) => handleQtyChange(index, e.target.value)}
+                            aria-label={`${t('qtyFor')} ${item.product.name}`}
+                          />
+                          <button 
+                            type="button" 
+                            className="stepper-btn plus"
+                            onClick={() => handleQtyChange(index, item.qty + 1)}
+                          >
+                            +
+                          </button>
+                        </div>
                       </td>
                       <td className="col-total">{formatINR(item.product.price * item.qty)}</td>
                       <td className="col-action">
@@ -1243,6 +1275,61 @@ export default function App() {
           {t('receiptFooter')}
         </p>
       </div>
+
+      {/* ── Mobile Full-screen Search Overlay ── */}
+      {showSearchModal && (
+        <div className="mobile-search-overlay">
+          <div className="mobile-search-header">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder={t('scanOrType')}
+              value={billingEntry}
+              onChange={(e) => setBillingEntry(e.target.value)}
+              className="massive-search-input"
+              autoFocus
+            />
+            {billingEntry && (
+              <button 
+                className="btn btn-ghost btn-clear-search"
+                onClick={() => setBillingEntry('')}
+              >
+                Clear
+              </button>
+            )}
+            <button 
+              className="btn btn-ghost btn-close-search"
+              onClick={() => setShowSearchModal(false)}
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="mobile-search-results">
+            {suggestions.length > 0 ? (
+              <ul className="mobile-suggestion-list">
+                {suggestions.map((item) => (
+                  <li 
+                    key={item.id} 
+                    className="mobile-suggestion-item"
+                    onClick={() => {
+                      addToBill(item);
+                      setBillingEntry('');
+                    }}
+                  >
+                    <div className="item-info">
+                      <span className="item-id">{item.id}</span>
+                      <span className="item-name">{item.name}</span>
+                    </div>
+                    <span className="item-price">{formatINR(item.price)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              billingEntry && <div className="no-results-msg">No products match "{billingEntry}"</div>
+            )}
+          </div>
+        </div>
+      )}
     </React.Fragment>
   );
 }

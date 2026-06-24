@@ -2050,6 +2050,187 @@ button[disabled] {
   background-position: 0.9rem center;
 }
 
+/* ── Quantity Stepper & Stepper Buttons ── */
+.qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stepper-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.stepper-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.stepper-btn:active {
+  background: var(--accent-indigo);
+}
+
+/* ── Quick Add Strip ── */
+.quick-add-strip {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.quick-add-btn {
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 4px;
+  color: #a5b4fc;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-add-btn:hover {
+  background: var(--accent-indigo);
+  color: white;
+  border-color: var(--accent-indigo);
+}
+
+/* ── Mobile Full-screen Search Overlay ── */
+.mobile-search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0f172a; /* Solid slate-900 background */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.mobile-search-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.massive-search-input {
+  flex: 1;
+  font-size: 1.25rem !important;
+  padding: 0.9rem 1.2rem !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  color: white !important;
+  outline: none;
+}
+
+.massive-search-input:focus {
+  border-color: var(--accent-indigo) !important;
+  box-shadow: 0 0 0 3px var(--accent-indigo-glow) !important;
+}
+
+.btn-clear-search, .btn-close-search {
+  padding: 0.8rem 1rem !important;
+  font-size: 0.95rem !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  cursor: pointer;
+}
+
+.mobile-search-results {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.mobile-suggestion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mobile-suggestion-item:active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--accent-indigo);
+}
+
+.mobile-suggestion-item .item-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobile-suggestion-item .item-id {
+  font-weight: 800;
+  color: #818cf8;
+}
+
+.mobile-suggestion-item .item-name {
+  color: white;
+  font-weight: 500;
+}
+
+.mobile-suggestion-item .item-price {
+  font-weight: 700;
+  color: var(--accent-amber);
+}
+
+.no-results-msg {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  /* Larger Stepper Buttons on Mobile */
+  .stepper-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.4rem;
+  }
+  .qty-input {
+    width: 60px;
+    height: 44px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    REDUCED MOTION SUPPORT (Accessibility)
    ═══════════════════════════════════════════════════════════════════════════ */
