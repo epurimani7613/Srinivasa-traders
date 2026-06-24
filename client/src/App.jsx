@@ -19,9 +19,11 @@ import {
   Moon,
   Sun,
   Archive,
-  RotateCcw
+  RotateCcw,
+  ChevronUp
 } from 'lucide-react';
 import { printReceipt } from './bluetoothPrinter';
+import { playSuccessTone, playPrintBeep } from './soundEffects';
 
 const translations = {
   en: {
@@ -177,6 +179,7 @@ export default function App() {
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(true);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showSummaryDrawer, setShowSummaryDrawer] = useState(false);
 
   // Time & Date State
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -452,6 +455,7 @@ export default function App() {
 
   // Add item to bill
   const addToBill = (product) => {
+    playSuccessTone();
     setBillItems(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
@@ -595,6 +599,7 @@ export default function App() {
       return;
     }
     
+    playPrintBeep();
     showTemporaryMsg(setBillingMsg, "Connecting to printer and printing receipt...", "info", 0);
     
     try {
@@ -1191,8 +1196,66 @@ export default function App() {
           </div>
 
           {/* Card: Summary and Printing */}
-          <div className="card bill-summary-card fixed-mobile-footer fixed bottom-0 left-0 right-0 z-50 bg-slate-900 p-4 shadow-lg">
-            <div className="summary-details">
+          <div className="card bill-summary-card fixed-mobile-footer fixed bottom-0 left-0 right-0 z-50 bg-slate-900 shadow-lg">
+
+            {/* ── Slide-up Drawer Overlay (mobile) ── */}
+            <div
+              className={`summary-drawer-overlay ${showSummaryDrawer ? 'open' : ''}`}
+              onClick={() => setShowSummaryDrawer(false)}
+            />
+            <div className={`summary-slide-drawer ${showSummaryDrawer ? 'open' : ''}`}>
+              <div className="drawer-handle" />
+              <h3 className="drawer-title">Cost Breakdown</h3>
+              <div className="drawer-rows">
+                <div className="summary-row">
+                  <span className="summary-label">{t('totalItems')}</span>
+                  <span className="summary-value">{totalItemsCount} items</span>
+                </div>
+                <div className="summary-row">
+                  <span className="summary-label">Subtotal</span>
+                  <span className="summary-value">{formatINR(grandTotalAmount)}</span>
+                </div>
+                <div className="summary-row">
+                  <span className="summary-label">Discount</span>
+                  <span className="summary-value text-green-400">— ₹0.00</span>
+                </div>
+                <div className="summary-row">
+                  <span className="summary-label">Tax (0%)</span>
+                  <span className="summary-value">₹0.00</span>
+                </div>
+                <div className="summary-row summary-row--total">
+                  <span className="summary-label">{t('grandTotal')}</span>
+                  <span className="summary-value grand-total">{formatINR(grandTotalAmount)}</span>
+                </div>
+              </div>
+              <button
+                className="btn btn-print w-full mt-3"
+                onClick={() => { setShowSummaryDrawer(false); handlePrint(); }}
+                disabled={billItems.length === 0}
+              >
+                <Printer size={18} />
+                <span>{t('printInvoice')}</span>
+              </button>
+            </div>
+
+            {/* ── Compact Summary Banner (mobile tap-target) ── */}
+            <button
+              className="mobile-summary-banner"
+              onClick={() => setShowSummaryDrawer(prev => !prev)}
+              aria-label="View cost breakdown"
+            >
+              <div className="banner-left">
+                <ShoppingBag size={16} className="banner-icon" />
+                <span className="banner-count">{totalItemsCount} item{totalItemsCount !== 1 ? 's' : ''}</span>
+              </div>
+              <div className="banner-right">
+                <span className="banner-total">{formatINR(grandTotalAmount)}</span>
+                <ChevronUp size={14} className={`banner-chevron ${showSummaryDrawer ? 'rotated' : ''}`} />
+              </div>
+            </button>
+
+            {/* ── Desktop summary (hidden on mobile) ── */}
+            <div className="summary-details desktop-only">
               <div className="summary-row">
                 <span className="summary-label">{t('totalItems')}</span>
                 <span className="summary-value">{totalItemsCount}</span>
@@ -1202,16 +1265,19 @@ export default function App() {
                 <span className="summary-value grand-total">{formatINR(grandTotalAmount)}</span>
               </div>
             </div>
-            
-            <button 
-              className="btn btn-print"
-              onClick={handlePrint}
-              disabled={billItems.length === 0}
-            >
-              <Printer size={18} />
-              <span>{t('printInvoice')}</span>
-            </button>
+
+            <div className="p-4 pt-0">
+              <button
+                className="btn btn-print w-full"
+                onClick={handlePrint}
+                disabled={billItems.length === 0}
+              >
+                <Printer size={18} />
+                <span>{t('printInvoice')}</span>
+              </button>
+            </div>
           </div>
+
 
         </section>
       </main>

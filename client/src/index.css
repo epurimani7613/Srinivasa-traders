@@ -2244,3 +2244,164 @@ button[disabled] {
     scroll-behavior: auto !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE SUMMARY BANNER & SLIDE-UP DRAWER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Hide the tap-banner on desktop, show only desktop breakdown */
+.mobile-summary-banner {
+  display: none;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+/* Utility: full-width button */
+.btn.w-full {
+  width: 100%;
+}
+
+/* Drawer styles */
+.summary-drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 90;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.summary-drawer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.summary-slide-drawer {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100%;
+  z-index: 95;
+  background: #1e293b;
+  border-radius: 20px 20px 0 0;
+  padding: 1rem 1.25rem 1.5rem;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.summary-slide-drawer.open {
+  bottom: 0;
+}
+
+.drawer-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 0 auto 1rem;
+}
+
+.drawer-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.drawer-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  /* Show mobile banner, hide desktop summary */
+  .mobile-summary-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-summary-banner:active {
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .banner-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+  }
+
+  .banner-icon {
+    color: var(--accent-indigo);
+  }
+
+  .banner-count {
+    font-weight: 600;
+  }
+
+  .banner-right {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .banner-total {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--accent-emerald);
+    letter-spacing: -0.02em;
+  }
+
+  .banner-chevron {
+    color: var(--text-muted);
+    transition: transform 0.25s ease;
+  }
+
+  .banner-chevron.rotated {
+    transform: rotate(180deg);
+  }
+
+  /* Enable drawer on mobile */
+  .summary-drawer-overlay,
+  .summary-slide-drawer {
+    display: block;
+  }
+
+  /* Make footer thinner on mobile — just the banner + print button */
+  .bill-summary-card {
+    padding: 0;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .bill-summary-card .p-4 {
+    padding: 0.75rem 1rem;
+  }
+
+  .right-panel {
+    padding-bottom: 130px;
+  }
+}
