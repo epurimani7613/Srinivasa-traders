@@ -23,7 +23,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { printReceipt } from './bluetoothPrinter';
-import { playSuccessTone, playPrintBeep } from './soundEffects';
+import { attachAudioInitListeners, playClick, playAddSuccess, playDelete, playPrint } from './soundEffects';
 
 const translations = {
   en: {
@@ -196,8 +196,9 @@ export default function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
   
-  // Fetch initial product list
+  // Fetch initial product list + bootstrap Web Audio on first user gesture
   useEffect(() => {
+    attachAudioInitListeners();
     fetchProducts();
     
     // Live clock ticker
@@ -254,6 +255,7 @@ export default function App() {
 
   // ── Voice Command Setup ────────────────────────────────────────────────────
   const startVoiceCommand = () => {
+    playClick();
     if (!voiceSupported) {
       showTemporaryMsg(setBillingMsg, "⚠ Voice search not supported in this browser.", "error");
       return;
@@ -400,6 +402,7 @@ export default function App() {
 
   // Pre-fill form for editing on clicking an item
   const handleEditProductClick = (prod) => {
+    playClick();
     setFormId(prod.id);
     setFormName(prod.name);
     setFormPrice(prod.price);
@@ -424,6 +427,7 @@ export default function App() {
         throw new Error(data.error || "Delete operation failed.");
       }
 
+      playDelete();
       // Remove from local state
       setProducts(prev => prev.filter(p => p.id !== prod.id));
       
@@ -455,7 +459,7 @@ export default function App() {
 
   // Add item to bill
   const addToBill = (product) => {
-    playSuccessTone();
+    playAddSuccess();
     setBillItems(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
@@ -527,8 +531,14 @@ export default function App() {
     });
   };
 
+  const handleQtyStep = (index, val) => {
+    playClick();
+    handleQtyChange(index, val);
+  };
+
   // Remove row from bill
   const handleRemoveRow = (index) => {
+    playDelete();
     const name = billItems[index]?.product?.name || 'Item';
     setBillItems(prev => prev.filter((_, i) => i !== index));
     showTemporaryMsg(setBillingMsg, `✔ Removed "${name}" from bill.`, "success");
@@ -537,7 +547,9 @@ export default function App() {
   // Clear bill
   const handleClearBill = () => {
     if (!billItems.length) return;
+    playClick();
     if (window.confirm("Are you sure you want to clear the entire bill?")) {
+      playDelete();
       setBillItems([]);
       setCustomerName('');
       showTemporaryMsg(setBillingMsg, "✔ Current bill cleared.", "success");
@@ -551,6 +563,7 @@ export default function App() {
       return;
     }
 
+    playClick();
     const parkedBill = {
       id: Date.now(),
       customerName: customerName || 'Guest',
@@ -577,6 +590,7 @@ export default function App() {
       return;
     }
 
+    playAddSuccess();
     setBillItems(parkedBill.items);
     setCustomerName(parkedBill.customerName === 'Guest' ? '' : parkedBill.customerName);
     setParkedBills(prev => prev.filter(b => b.id !== parkedBill.id));
@@ -587,6 +601,7 @@ export default function App() {
   // Delete a parked bill
   const handleDeleteParkedBill = (parkedBill) => {
     if (window.confirm(`Are you sure you want to delete the parked bill for ${parkedBill.customerName}?`)) {
+      playDelete();
       setParkedBills(prev => prev.filter(b => b.id !== parkedBill.id));
       showTemporaryMsg(setBillingMsg, `✔ Parked bill deleted.`, "success");
     }
@@ -599,7 +614,7 @@ export default function App() {
       return;
     }
     
-    playPrintBeep();
+    playPrint();
     showTemporaryMsg(setBillingMsg, "Connecting to printer and printing receipt...", "info", 0);
     
     try {
@@ -635,7 +650,10 @@ export default function App() {
     }
   };
 
-  const handleSearchFocus = () => {
+  const handleInputFocus = () => playClick();
+
+  const handleBillingInputFocus = () => {
+    playClick();
     if (window.innerWidth <= 768) {
       setShowSearchModal(true);
     }
@@ -700,7 +718,7 @@ export default function App() {
             {/* Parked Bills Button */}
             <button
               className="btn btn-sm btn-ghost"
-              onClick={() => setShowParkedBillsDrawer(!showParkedBillsDrawer)}
+              onClick={() => { playClick(); setShowParkedBillsDrawer(!showParkedBillsDrawer); }}
               style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               title={t('parkedBills')}
             >
@@ -716,7 +734,7 @@ export default function App() {
             {/* Theme Toggle Button */}
             <button
               className="theme-toggle-btn"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => { playClick(); setTheme(theme === 'dark' ? 'light' : 'dark'); }}
               aria-label="Toggle theme"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
@@ -728,21 +746,21 @@ export default function App() {
               <button
                 className={`btn btn-sm ${language === 'en' ? 'btn-accent' : 'btn-ghost'}`}
                 style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '5px', boxShadow: 'none', minWidth: '45px' }}
-                onClick={() => setLanguage('en')}
+                onClick={() => { playClick(); setLanguage('en'); }}
               >
                 ENG
               </button>
               <button
                 className={`btn btn-sm ${language === 'te' ? 'btn-accent' : 'btn-ghost'}`}
                 style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '5px', boxShadow: 'none', minWidth: '45px' }}
-                onClick={() => setLanguage('te')}
+                onClick={() => { playClick(); setLanguage('te'); }}
               >
                 తెలుగు
               </button>
               <button
                 className={`btn btn-sm ${language === 'mix' ? 'btn-accent' : 'btn-ghost'}`}
                 style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '5px', boxShadow: 'none', minWidth: '45px' }}
-                onClick={() => setLanguage('mix')}
+                onClick={() => { playClick(); setLanguage('mix'); }}
               >
                 MIX
               </button>
@@ -758,11 +776,11 @@ export default function App() {
 
       {/* Parked Bills Drawer */}
       {showParkedBillsDrawer && (
-        <div className="parked-bills-overlay" onClick={() => setShowParkedBillsDrawer(false)}>
+        <div className="parked-bills-overlay" onClick={() => { playClick(); setShowParkedBillsDrawer(false); }}>
           <div className="parked-bills-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-header">
               <h3>{t('parkedBills')} ({parkedBills.length})</h3>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowParkedBillsDrawer(false)}>
+              <button className="btn btn-ghost btn-sm" onClick={() => { playClick(); setShowParkedBillsDrawer(false); }}>
                 <X size={18} />
               </button>
             </div>
@@ -802,7 +820,7 @@ export default function App() {
                         </button>
                         <button
                           className="btn btn-sm btn-ghost"
-                          onClick={() => handleDeleteParkedBill(bill)}
+                          onClick={() => { playClick(); handleDeleteParkedBill(bill); }}
                           title={t('deleteBill')}
                         >
                           <Trash2 size={14} />
@@ -945,6 +963,7 @@ export default function App() {
                 placeholder={t('searchProducts')}
                 value={inventorySearch}
                 onChange={(e) => setInventorySearch(e.target.value)}
+                onFocus={handleInputFocus}
                 autoComplete="off"
               />
             </div>
@@ -991,13 +1010,14 @@ export default function App() {
                 placeholder={t('customerNamePlaceholder')}
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
+                onFocus={handleInputFocus}
                 className="customer-name-input"
                 autoComplete="off"
               />
               {customerName && (
                 <button
                   className="btn-clear-customer"
-                  onClick={() => setCustomerName('')}
+                  onClick={() => { playDelete(); setCustomerName(''); }}
                   aria-label={t('clearCustomer')}
                   title={t('clearCustomer')}
                 >
@@ -1027,8 +1047,7 @@ export default function App() {
                 value={billingEntry}
                 onChange={(e) => setBillingEntry(e.target.value)}
                 onKeyDown={handleBillingKeyDown}
-                onFocus={handleSearchFocus}
-                onClick={handleSearchFocus}
+                onFocus={handleBillingInputFocus}
                 autoComplete="off"
                 autoFocus
                 style={{ paddingRight: '2.5rem' }}
@@ -1061,7 +1080,10 @@ export default function App() {
                   const query = billingEntry.trim().toLowerCase();
                   const found = products.find(p => p.id.toLowerCase() === query);
                   if (found) addToBill(found);
-                  else showTemporaryMsg(setBillingMsg, `⚠ Exact ID match "${billingEntry}" not found.`, "error");
+                  else {
+                    playClick();
+                    showTemporaryMsg(setBillingMsg, `⚠ Exact ID match "${billingEntry}" not found.`, "error");
+                  }
                 }}
               >
                 {t('addItem')}
@@ -1138,9 +1160,9 @@ export default function App() {
                       <td className="col-name">
                         <div className="item-name-text">{item.product.name}</div>
                         <div className="quick-add-strip">
-                          <button type="button" className="quick-add-btn" onClick={() => handleQtyChange(index, item.qty + 2)}>+2</button>
-                          <button type="button" className="quick-add-btn" onClick={() => handleQtyChange(index, item.qty + 5)}>+5</button>
-                          <button type="button" className="quick-add-btn" onClick={() => handleQtyChange(index, item.qty + 10)}>+10</button>
+                          <button type="button" className="quick-add-btn" onClick={() => handleQtyStep(index, item.qty + 2)}>+2</button>
+                          <button type="button" className="quick-add-btn" onClick={() => handleQtyStep(index, item.qty + 5)}>+5</button>
+                          <button type="button" className="quick-add-btn" onClick={() => handleQtyStep(index, item.qty + 10)}>+10</button>
                         </div>
                       </td>
                       <td className="col-price">{formatINR(item.product.price)}</td>
@@ -1149,7 +1171,7 @@ export default function App() {
                           <button 
                             type="button" 
                             className="stepper-btn minus"
-                            onClick={() => handleQtyChange(index, Math.max(1, item.qty - 1))}
+                            onClick={() => handleQtyStep(index, Math.max(1, item.qty - 1))}
                           >
                             −
                           </button>
@@ -1165,7 +1187,7 @@ export default function App() {
                           <button 
                             type="button" 
                             className="stepper-btn plus"
-                            onClick={() => handleQtyChange(index, item.qty + 1)}
+                            onClick={() => handleQtyStep(index, item.qty + 1)}
                           >
                             +
                           </button>
@@ -1201,7 +1223,7 @@ export default function App() {
             {/* ── Slide-up Drawer Overlay (mobile) ── */}
             <div
               className={`summary-drawer-overlay ${showSummaryDrawer ? 'open' : ''}`}
-              onClick={() => setShowSummaryDrawer(false)}
+              onClick={() => { playClick(); setShowSummaryDrawer(false); }}
             />
             <div className={`summary-slide-drawer ${showSummaryDrawer ? 'open' : ''}`}>
               <div className="drawer-handle" />
@@ -1241,7 +1263,7 @@ export default function App() {
             {/* ── Compact Summary Banner (mobile tap-target) ── */}
             <button
               className="mobile-summary-banner"
-              onClick={() => setShowSummaryDrawer(prev => !prev)}
+              onClick={() => { playClick(); setShowSummaryDrawer(prev => !prev); }}
               aria-label="View cost breakdown"
             >
               <div className="banner-left">
@@ -1352,20 +1374,21 @@ export default function App() {
               placeholder={t('scanOrType')}
               value={billingEntry}
               onChange={(e) => setBillingEntry(e.target.value)}
+              onKeyDown={handleBillingKeyDown}
               className="massive-search-input"
               autoFocus
             />
             {billingEntry && (
               <button 
                 className="btn btn-ghost btn-clear-search"
-                onClick={() => setBillingEntry('')}
+                onClick={() => { playClick(); setBillingEntry(''); }}
               >
                 Clear
               </button>
             )}
             <button 
               className="btn btn-ghost btn-close-search"
-              onClick={() => setShowSearchModal(false)}
+              onClick={() => { playClick(); setShowSearchModal(false); }}
             >
               <X size={20} />
             </button>
