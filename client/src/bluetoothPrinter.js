@@ -306,12 +306,36 @@ export async function printReceipt(billData) {
   let device = null;
   
   try {
-    // Request Bluetooth device accepting all devices to bypass prefix issues
-    device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      // Request access to the printer service
-      optionalServices: [PRINTER_SERVICE_UUID]
-    });
+    // Check for previously paired devices
+    if (navigator.bluetooth.getDevices) {
+      console.log('Checking for previously paired devices...');
+      try {
+        const devices = await navigator.bluetooth.getDevices();
+        // Look for a device matching typical printer keywords or name
+        device = devices.find(d => 
+          d.name && (
+            d.name.toLowerCase().includes('seznik') || 
+            d.name.toLowerCase().includes('veer') || 
+            d.name.toLowerCase().includes('printer') ||
+            d.name.toLowerCase().includes('mtp')
+          )
+        );
+        if (device) {
+          console.log('Using remembered device:', device.name);
+        }
+      } catch (err) {
+        console.warn('Error checking getDevices:', err);
+      }
+    }
+
+    // If no remembered device was found, request new device
+    if (!device) {
+      console.log('Requesting new Bluetooth device selection...');
+      device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [PRINTER_SERVICE_UUID]
+      });
+    }
     
     console.log('Device selected:', device.name);
     
