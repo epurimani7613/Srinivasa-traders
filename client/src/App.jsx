@@ -256,6 +256,40 @@ export default function App() {
     setBillingEntry(numericValue);
   };
 
+  // Helper functions for the numeric keypad
+  const handleKeypadNum = (num) => {
+    playClick();
+    setBillingEntry(prev => prev + num);
+    billingInputRef.current?.focus();
+  };
+
+  const handleKeypadClear = () => {
+    playClick();
+    setBillingEntry('');
+    billingInputRef.current?.focus();
+  };
+
+  const handleKeypadBackspace = () => {
+    playClick();
+    setBillingEntry(prev => prev.slice(0, -1));
+    billingInputRef.current?.focus();
+  };
+
+  const handleKeypadEnter = () => {
+    playClick();
+    if (showSuggestions && selectedSuggestionIndex >= 0 && suggestions[selectedSuggestionIndex]) {
+      addToBill(suggestions[selectedSuggestionIndex]);
+    } else {
+      const query = billingEntry.trim().toLowerCase();
+      const product = products.find(p => p.id.toLowerCase() === query);
+      if (product) {
+        addToBill(product);
+      } else if (billingEntry.trim()) {
+        showTemporaryMsg(setBillingMsg, `⚠ Product "${billingEntry}" not found in inventory.`, "error");
+      }
+    }
+  };
+
   // Sync parkedBills with localStorage
   useEffect(() => {
     localStorage.setItem('parkedBills', JSON.stringify(parkedBills));
@@ -1099,6 +1133,45 @@ export default function App() {
                   ))}
                 </ul>
               )}
+            </div>
+
+            {/* Numeric Keypad */}
+            <div className="billing-keypad-container">
+              <div className="billing-keypad-grid">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  <button
+                    key={num}
+                    type="button"
+                    className="billing-keypad-btn num-btn"
+                    onClick={() => handleKeypadNum(num.toString())}
+                  >
+                    {num}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="billing-keypad-btn clear-btn"
+                  onClick={handleKeypadClear}
+                  title="Clear"
+                >
+                  C
+                </button>
+                <button
+                  type="button"
+                  className="billing-keypad-btn num-btn"
+                  onClick={() => handleKeypadNum('0')}
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  className="billing-keypad-btn enter-btn"
+                  onClick={handleKeypadEnter}
+                  title="Enter - Add to Invoice"
+                >
+                  Enter
+                </button>
+              </div>
             </div>
 
             {billingMsg && (
