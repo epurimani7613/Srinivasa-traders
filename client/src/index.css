@@ -1885,12 +1885,36 @@ button[disabled] {
   }
 
   .bill-summary-card {
-    flex-direction: column;
-    align-items: stretch;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    border-radius: 0;
+    border-top: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.4);
+    margin: 0;
+    padding: 1rem 1.5rem;
+    transform: none !important;
+    flex-direction: row;
+    align-items: center;
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+  }
+
+  .bill-summary-card:hover {
+    transform: none !important;
+  }
+
+  .right-panel {
+    padding-bottom: 120px; /* Leave room for sticky footer */
   }
 
   .btn-print {
-    width: 100%;
+    width: auto;
+    flex: 1;
+    max-width: 250px;
   }
 }
 
@@ -1919,6 +1943,16 @@ button[disabled] {
   .btn-danger {
     padding: 0.3rem 0.5rem;
     font-size: 0.75rem;
+  }
+
+  .bill-summary-card {
+    padding: 0.75rem 1rem;
+    gap: 1rem;
+  }
+
+  .btn-print {
+    font-size: 0.95rem;
+    padding: 0.75rem 1.25rem;
   }
 }
 

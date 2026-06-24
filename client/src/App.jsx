@@ -858,6 +858,7 @@ export default function App() {
                   ref={formIdRef}
                   id="prod-id"
                   type="text"
+                  inputMode="numeric"
                   placeholder="e.g. P020"
                   value={formId}
                   onChange={(e) => setFormId(e.target.value)}
@@ -1008,6 +1009,7 @@ export default function App() {
               <input
                 ref={billingInputRef}
                 type="text"
+                inputMode="numeric"
                 id="billing-entry-field"
                 placeholder={t('scanOrType')}
                 value={billingEntry}
@@ -1124,6 +1126,7 @@ export default function App() {
                       <td className="col-qty">
                         <input
                           type="number"
+                          inputMode="numeric"
                           className="qty-input"
                           min="1"
                           value={item.qty}
