@@ -1,69 +1,144 @@
-let audioCtx = null;
+/**
+ * soundEffects.js — Central Web Audio synthesizer for the billing dashboard.
+ *
+ * All sounds are generated entirely with the Web Audio API (no .mp3 files).
+ * The AudioContext is created lazily on the first call so it satisfies the
+ * browser's "autoplay policy" requirement (must be triggered by a user gesture).
+ *
+ *  - initAudio()          → warm up AudioContext on first gesture
+ *  - attachAudioInitListeners() → one-shot pointer/touch/key listeners
+ *  - playClick()        → subtle 800 Hz tap feedback
+ *  - playAddSuccess()   → bright double-beep (1200 Hz → 1600 Hz)
+ *  - playDelete()       → low warning blip (400 Hz)
+ *  - playPrint()        → rising three-tone sequence (600 → 900 → 1200 Hz)
+ *
+ * Legacy aliases kept for backwards compatibility:
+ *  - playSuccessTone()  → same as playAddSuccess()
+ *  - playPrintBeep()    → same as playPrint()
+ */
 
-function getAudioContext() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// ── Shared AudioContext (one per page, created on first interaction) ─────────
+let _ctx = null;
+let _initListenersAttached = false;
+
+function ctx() {
+  if (!_ctx) {
+    _ctx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
+  // Chrome suspends the context if the page loses focus — resume it.
+  if (_ctx.state === 'suspended') {
+    _ctx.resume();
   }
-  return audioCtx;
+  return _ctx;
 }
 
 /**
- * Plays a short, high-pitched success beep
+ * Warm up the AudioContext on the first user gesture (tap, click, or key).
+ * Browsers block audio until a gesture occurs — call this once at app mount.
  */
-export function playSuccessTone() {
+export function initAudio() {
   try {
-    const ctx = getAudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    ctx();
+  } catch (e) {
+    console.warn('[soundEffects] initAudio() failed:', e.message);
+  }
+}
+
+/** Attach one-shot listeners that bootstrap audio on the first interaction. */
+export function attachAudioInitListeners() {
+  if (_initListenersAttached || typeof window === 'undefined') return;
+  _initListenersAttached = true;
+
+  const boot = () => {
+    initAudio();
+    window.removeEventListener('pointerdown', boot, true);
+    window.removeEventListener('touchstart', boot, true);
+    window.removeEventListener('keydown', boot, true);
+  };
+
+  window.addEventListener('pointerdown', boot, true);
+  window.addEventListener('touchstart', boot, { capture: true, passive: true });
+  window.addEventListener('keydown', boot, true);
+}
+
+// ── Core primitive: play a single oscillator burst ───────────────────────────
+/**
+ * @param {number} frequency   Hz
+ * @param {number} duration    seconds
+ * @param {number} startTime   ctx.currentTime offset (seconds)
+ * @param {number} volume      0–1 peak gain
+ * @param {'sine'|'square'|'triangle'|'sawtooth'} type
+ */
+function tone(frequency, duration, startTime = 0, volume = 0.09, type = 'sine') {
+  try {
+    const c = ctx();
+    const now = c.currentTime + startTime;
+
+    const osc  = c.createOscillator();
+    const gain = c.createGain();
+
     osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 (high pitch)
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-    
-    osc.start();
-    osc.stop(ctx.currentTime + 0.12);
+    gain.connect(c.destination);
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(frequency, now);
+
+    // Soft attack + exponential decay tail (avoids clicks/pops)
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(volume, now + 0.005);      // 5 ms attack
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    osc.start(now);
+    osc.stop(now + duration + 0.01); // tiny buffer so decay completes cleanly
   } catch (e) {
-    console.warn('Web Audio playSuccessTone failed:', e);
+    // Silently ignore — audio is non-critical
+    console.warn('[soundEffects] tone() failed:', e.message);
   }
 }
 
+// ── 1. Standard Click ─────────────────────────────────────────────────────────
 /**
- * Plays a distinct double-beep print confirmation tone
+ * A tiny, subtle, neutral click (~800 Hz, 30 ms).
+ * Use for: selecting items, opening inputs, switching filters/tabs.
  */
-export function playPrintBeep() {
-  try {
-    const ctx = getAudioContext();
-    
-    // First Beep (Medium High)
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-    gain1.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-    osc1.start();
-    osc1.stop(ctx.currentTime + 0.08);
-    
-    // Second Beep (High Pitch, shortly after)
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
-    gain2.gain.setValueAtTime(0.08, ctx.currentTime + 0.1);
-    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-    osc2.start(ctx.currentTime + 0.1);
-    osc2.stop(ctx.currentTime + 0.22);
-  } catch (e) {
-    console.warn('Web Audio playPrintBeep failed:', e);
-  }
+export function playClick() {
+  // Short square-wave burst reads as a crisp electronic tap on mobile speakers.
+  tone(800, 0.03, 0, 0.05, 'square');
 }
+
+// ── 2. Action / Add Success ───────────────────────────────────────────────────
+/**
+ * A bright, cheerful double-beep (1200 Hz → 1600 Hz).
+ * Use for: item successfully added to the active invoice.
+ */
+export function playAddSuccess() {
+  tone(1200, 0.06, 0.00, 0.09, 'sine'); // first note
+  tone(1600, 0.07, 0.09, 0.09, 'sine'); // second note, slightly louder
+}
+
+// ── 3. Delete / Clear Action ─────────────────────────────────────────────────
+/**
+ * A lower, warning-toned blip (400 Hz, 80 ms).
+ * Use for: removing an item from the bill or clearing the entire bill.
+ */
+export function playDelete() {
+  tone(400, 0.08, 0, 0.10, 'sine');
+}
+
+// ── 4. Print Command ──────────────────────────────────────────────────────────
+/**
+ * A crisp, rising sequence of three short tones (600 → 900 → 1200 Hz).
+ * Use for: tapping the green "Print Invoice" button.
+ */
+export function playPrint() {
+  tone( 600, 0.055, 0.00, 0.08, 'sine');
+  tone( 900, 0.055, 0.07, 0.08, 'sine');
+  tone(1200, 0.070, 0.14, 0.09, 'sine');
+}
+
+// ── Legacy aliases (backwards-compat with previous session wiring) ────────────
+/** @deprecated use playAddSuccess() */
+export const playSuccessTone = playAddSuccess;
+
+/** @deprecated use playPrint() */
+export const playPrintBeep = playPrint;
