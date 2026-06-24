@@ -1113,27 +1113,27 @@ export default function App() {
               >
                 {t('addItem')}
               </button>
-
-              {/* Autocomplete Dropdown list */}
-              {showSuggestions && (
-                <ul className="suggestion-box" ref={suggestionsRef}>
-                  {suggestions.map((item, idx) => (
-                    <li 
-                      key={item.id}
-                      className={`suggestion-item ${idx === selectedSuggestionIndex ? 'active' : ''}`}
-                      onClick={() => addToBill(item)}
-                      onMouseEnter={() => setSelectedSuggestionIndex(idx)}
-                    >
-                      <span>
-                        <span className="item-id">{item.id}</span>
-                        <span> - {item.name}</span>
-                      </span>
-                      <span className="font-semibold">{formatINR(item.price)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
+
+            {/* Autocomplete Dropdown list */}
+            {showSuggestions && (
+              <ul className="suggestion-box" ref={suggestionsRef}>
+                {suggestions.map((item, idx) => (
+                  <li 
+                    key={item.id}
+                    className={`suggestion-item ${idx === selectedSuggestionIndex ? 'active' : ''}`}
+                    onClick={() => addToBill(item)}
+                    onMouseEnter={() => setSelectedSuggestionIndex(idx)}
+                  >
+                    <span>
+                      <span className="item-id">{item.id}</span>
+                      <span> - {item.name}</span>
+                    </span>
+                    <span className="font-semibold">{formatINR(item.price)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {/* Numeric Keypad */}
             <div className="billing-keypad-container">
