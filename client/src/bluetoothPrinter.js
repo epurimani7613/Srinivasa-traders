@@ -156,9 +156,13 @@ function buildReceiptPayload(billData) {
   // Initialize printer
   payload.push(ESC_POS_COMMANDS.INIT);
   
-  // Store Name (Centered, Normal Size, Normal weight)
+  // Store Name (Centered, Bold, Double Height for heading)
   payload.push(ESC_POS_COMMANDS.ALIGN_CENTER);
+  payload.push(ESC_POS_COMMANDS.BOLD_ON);
+  payload.push(ESC_POS_COMMANDS.DOUBLE_ON);
   payload.push(encodeText(billData.storeName));
+  payload.push(ESC_POS_COMMANDS.DOUBLE_OFF);
+  payload.push(ESC_POS_COMMANDS.BOLD_OFF);
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   
   // Store Address (if provided)
@@ -188,8 +192,10 @@ function buildReceiptPayload(billData) {
   payload.push(encodeText('--------------------------------'));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   
-  // Column Headers
+  // Column Headers (Bold for clarity, normal size)
+  payload.push(ESC_POS_COMMANDS.BOLD_ON);
   payload.push(encodeText(formatLineItem('Item', 'Price', 32)));
+  payload.push(ESC_POS_COMMANDS.BOLD_OFF);
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   payload.push(encodeText('--------------------------------'));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
@@ -234,9 +240,11 @@ function buildReceiptPayload(billData) {
     payload.push(ESC_POS_COMMANDS.LINE_FEED);
   }
   
-  // Total (Normal size and weight)
+  // Total (Bold for emphasis)
+  payload.push(ESC_POS_COMMANDS.BOLD_ON);
   const totalLine = formatLineItem('TOTAL:', formatCurrency(billData.total), 32);
   payload.push(encodeText(totalLine));
+  payload.push(ESC_POS_COMMANDS.BOLD_OFF);
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   
   // Separator line

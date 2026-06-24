@@ -170,6 +170,7 @@ h1, h2, h3, h4 {
   font-weight: 700;
   background: linear-gradient(135deg, #FFF, HSL(215, 25%, 85%));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -1312,31 +1313,31 @@ button[disabled] {
 
   .receipt-shop-name {
     font-family: 'Tiro Telugu', Georgia, serif;
-    font-size: 15pt;
+    font-size: 18pt;
     font-weight: bold;
-    margin-bottom: 2pt;
+    margin-bottom: 4pt;
     letter-spacing: 0.02em;
   }
 
   .receipt-tagline {
-    font-size: 8pt;
+    font-size: 10pt;
     color: #333;
-    margin-bottom: 4pt;
-    line-height: 1.2;
+    margin-bottom: 6pt;
+    line-height: 1.3;
   }
 
   .receipt-date {
-    font-size: 8pt;
-    margin-top: 3pt;
+    font-size: 10pt;
+    margin-top: 4pt;
+  }
 
   .receipt-customer {
-    font-size: 9pt;
+    font-size: 11pt;
     font-weight: bold;
-    margin: 4pt 0;
-    padding: 3pt 0;
+    margin: 6pt 0;
+    padding: 4pt 0;
     border-top: 1px dashed #ccc;
     border-bottom: 1px dashed #ccc;
-  }
   }
 
   .receipt-rule {
@@ -1348,13 +1349,13 @@ button[disabled] {
   .receipt-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 8.5pt;
-    margin-bottom: 6pt;
+    font-size: 10pt;
+    margin-bottom: 8pt;
   }
 
   .receipt-table th,
   .receipt-table td {
-    padding: 3pt 2pt;
+    padding: 4pt 3pt;
     text-align: left;
   }
 
@@ -1366,6 +1367,7 @@ button[disabled] {
   .receipt-table thead th {
     font-weight: bold;
     text-transform: uppercase;
+    font-size: 11pt;
   }
 
   .receipt-table tbody tr {
@@ -1384,33 +1386,33 @@ button[disabled] {
   .receipt-table th:nth-child(5), .receipt-table td:nth-child(5) { text-align: right; width: 18%; }
 
   .receipt-totals {
-    margin-top: 6pt;
+    margin-top: 8pt;
     display: flex;
     flex-direction: column;
-    gap: 4pt;
+    gap: 5pt;
   }
 
   .receipt-row {
     display: flex;
     justify-content: space-between;
-    font-size: 9pt;
+    font-size: 11pt;
   }
 
   .receipt-grand {
-    font-size: 11pt;
+    font-size: 13pt;
     font-weight: bold;
     border-top: 2px solid #000;
-    padding-top: 4pt;
-    margin-top: 2pt;
+    padding-top: 6pt;
+    margin-top: 4pt;
   }
 
   .receipt-footer {
     text-align: center;
-    font-size: 8pt;
-    margin-top: 12pt;
-    padding-top: 6pt;
+    font-size: 10pt;
+    margin-top: 14pt;
+    padding-top: 8pt;
     border-top: 1px dashed #000;
-    line-height: 1.4;
+    line-height: 1.5;
   }
 
   .receipt-table tr,
