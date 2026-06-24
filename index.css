@@ -185,9 +185,9 @@ h1, h2, h3, h4 {
 }
 
 .logo-container {
-  width: 48px;
-  height: 48px;
-  background: radial-gradient(circle at 30% 30%, HSL(226, 96%, 64%), HSL(226, 80%, 45%));
+  width: 64px;
+  height: 64px;
+  background: transparent;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -196,10 +196,11 @@ h1, h2, h3, h4 {
   transition: all 0.4s var(--ease-elastic);
   transform-style: preserve-3d;
   animation: logoFloat 4s ease-in-out infinite;
+  overflow: hidden;
 }
 
 .logo-container:hover {
-  transform: rotateY(360deg) scale(1.1);
+  transform: scale(1.1);
   box-shadow: var(--shadow-3d-xl), 0 0 50px rgba(99, 102, 241, 0.6);
 }
 

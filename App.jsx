@@ -17,6 +17,8 @@ import {
   MicOff,
   User
 } from 'lucide-react';
+import ThreeDLogo from './client/src/ThreeDLogo';
+import ThreeDBackground from './client/src/ThreeDBackground';
 
 const translations = {
   en: {
@@ -513,6 +515,9 @@ export default function App() {
 
   return (
     <React.Fragment>
+      {/* 3D Particle Background */}
+      <ThreeDBackground />
+
       {/* ═══════════════════════════════════════════════════════════════════════
          APPLICATION CONSOLE
          ═══════════════════════════════════════════════════════════════════════ */}
@@ -520,7 +525,7 @@ export default function App() {
         <div className="header-inner">
           <div className="header-logo">
             <div className="logo-container">
-              <ShoppingBag size={24} className="text-white" />
+              <ThreeDLogo />
             </div>
             <div className="logo-text">
               <h1>{t('shopName')}</h1>
