@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { printReceipt } from './bluetoothPrinter';
 import { attachAudioInitListeners, playClick, playAddSuccess, playDelete, playPrint } from './soundEffects';
+import ThreeDBackground from './ThreeDBackground';
+import ThreeDLogo from './ThreeDLogo';
 
 const translations = {
   en: {
@@ -731,17 +733,22 @@ export default function App() {
 
   return (
     <React.Fragment>
+      <ThreeDBackground />
       {/* ═══════════════════════════════════════════════════════════════════════
          APPLICATION CONSOLE
          ═══════════════════════════════════════════════════════════════════════ */}
       <header className="site-header">
         <div className="header-inner">
           <div className="header-logo">
-            <div className="logo-container">
-              <ShoppingBag size={24} className="text-white" />
+            <div className="logo-container" style={{ width: '60px', height: '60px', overflow: 'visible', background: 'none', border: 'none', boxShadow: 'none' }}>
+              <ThreeDLogo />
             </div>
-            <div className="logo-text">
-              <h1>{t('shopName')}</h1>
+            <div className="logo-text scroll-marquee-container">
+              <div className="scroll-marquee-text-wrap">
+                <h1 className="scroll-marquee-text">{t('shopName')}</h1>
+                <h1 className="scroll-marquee-text" aria-hidden="true">&nbsp;·&nbsp;{t('shopName')}</h1>
+                <h1 className="scroll-marquee-text" aria-hidden="true">&nbsp;·&nbsp;{t('shopName')}</h1>
+              </div>
               <p>{t('shopTagline')}</p>
             </div>
           </div>

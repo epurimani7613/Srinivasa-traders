@@ -230,6 +230,52 @@ h1, h2, h3, h4 {
   font-family: var(--font-brand);
 }
 
+/* Horizontal Scroll Marquee for shop name with 3D glow effects */
+.scroll-marquee-container {
+  overflow: hidden;
+  max-width: 250px;
+  position: relative;
+  mask-image: linear-gradient(to right, transparent, white 15%, white 85%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, white 15%, white 85%, transparent);
+}
+
+.scroll-marquee-text-wrap {
+  display: flex;
+  width: max-content;
+  animation: marquee-horizontal 12s linear infinite;
+}
+
+.scroll-marquee-text {
+  font-size: 1.6rem;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-shadow: 0 0 8px rgba(99, 102, 241, 0.5), 0 0 15px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(90deg, #fff, HSL(226, 96%, 64%), #fff);
+  background-size: 200% auto;
+  animation: textShine 4s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes marquee-horizontal {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.3333%);
+  }
+}
+
+@keyframes textShine {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 .meta-date {
   font-size: 0.85rem;
   color: var(--text-secondary);

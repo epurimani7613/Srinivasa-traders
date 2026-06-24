@@ -9,9 +9,16 @@ import { MeshDistortMaterial, Sphere, Torus } from '@react-three/drei';
 function AnimatedLogo() {
   const meshRef = useRef();
   const torusRef = useRef();
+  const groupRef = useRef();
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
+    
+    // Swing the entire group horizontally (left and right) and float slightly
+    if (groupRef.current) {
+      groupRef.current.position.x = Math.sin(t * 0.8) * 0.6;
+      groupRef.current.position.y = Math.cos(t * 0.5) * 0.2;
+    }
     
     // Rotate the main sphere
     if (meshRef.current) {
@@ -27,7 +34,7 @@ function AnimatedLogo() {
   });
 
   return (
-    <group>
+    <group ref={groupRef}>
       {/* Main sphere with distortion effect */}
       <Sphere ref={meshRef} args={[1, 32, 32]} position={[0, 0, 0]}>
         <MeshDistortMaterial

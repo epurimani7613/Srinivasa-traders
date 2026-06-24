@@ -12,6 +12,10 @@ function Particle({ position }) {
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (meshRef.current) {
+      // Drift slowly horizontally (from left to right) and wrap around
+      let x = position[0] + t * 0.3;
+      x = ((x + 10) % 20) - 10;
+      meshRef.current.position.x = x;
       meshRef.current.position.y = position[1] + Math.sin(t + position[0]) * 0.5;
       meshRef.current.material.opacity = 0.3 + Math.sin(t * 2 + position[0]) * 0.2;
     }
