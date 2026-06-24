@@ -156,14 +156,10 @@ function buildReceiptPayload(billData) {
   // Initialize printer
   payload.push(ESC_POS_COMMANDS.INIT);
   
-  // Store Name (Centered, Double Size, Bold)
+  // Store Name (Centered, Normal Size, Normal weight)
   payload.push(ESC_POS_COMMANDS.ALIGN_CENTER);
-  payload.push(ESC_POS_COMMANDS.DOUBLE_ON);
-  payload.push(ESC_POS_COMMANDS.BOLD_ON);
   payload.push(encodeText(billData.storeName));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
-  payload.push(ESC_POS_COMMANDS.DOUBLE_OFF);
-  payload.push(ESC_POS_COMMANDS.BOLD_OFF);
   
   // Store Address (if provided)
   if (billData.storeAddress) {
@@ -183,22 +179,18 @@ function buildReceiptPayload(billData) {
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   
   // Invoice Number and Date
-  payload.push(ESC_POS_COMMANDS.BOLD_ON);
   payload.push(encodeText('Invoice: ' + billData.invoiceNumber));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   payload.push(encodeText('Date: ' + billData.date));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
-  payload.push(ESC_POS_COMMANDS.BOLD_OFF);
   
   // Separator line
   payload.push(encodeText('--------------------------------'));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   
   // Column Headers
-  payload.push(ESC_POS_COMMANDS.BOLD_ON);
   payload.push(encodeText(formatLineItem('Item', 'Price', 32)));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
-  payload.push(ESC_POS_COMMANDS.BOLD_OFF);
   payload.push(encodeText('--------------------------------'));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
   
@@ -242,14 +234,10 @@ function buildReceiptPayload(billData) {
     payload.push(ESC_POS_COMMANDS.LINE_FEED);
   }
   
-  // Total (Bold, Double Size)
-  payload.push(ESC_POS_COMMANDS.BOLD_ON);
-  payload.push(ESC_POS_COMMANDS.DOUBLE_ON);
+  // Total (Normal size and weight)
   const totalLine = formatLineItem('TOTAL:', formatCurrency(billData.total), 32);
   payload.push(encodeText(totalLine));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
-  payload.push(ESC_POS_COMMANDS.DOUBLE_OFF);
-  payload.push(ESC_POS_COMMANDS.BOLD_OFF);
   
   // Separator line
   payload.push(encodeText('--------------------------------'));
