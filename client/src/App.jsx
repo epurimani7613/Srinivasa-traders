@@ -21,6 +21,7 @@ import {
   Archive,
   RotateCcw
 } from 'lucide-react';
+import { printReceipt } from './bluetoothPrinter';
 
 const translations = {
   en: {
@@ -587,12 +588,45 @@ export default function App() {
   };
 
   // Print Bill Handler
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!billItems.length) {
       showTemporaryMsg(setBillingMsg, "⚠ Add items to the bill before printing.", "error");
       return;
     }
-    window.print();
+    
+    showTemporaryMsg(setBillingMsg, "Connecting to printer and printing receipt...", "info", 0);
+    
+    try {
+      const billData = {
+        storeName: t('shopName'),
+        storeAddress: t('shopTagline'),
+        storePhone: '',
+        invoiceNumber: `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toLocaleString('en-IN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        items: billItems.map(item => ({
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.qty
+        })),
+        subtotal: grandTotalAmount,
+        tax: 0,
+        discount: 0,
+        total: grandTotalAmount,
+        footer: customerName ? `${t('customerName')}: ${customerName}\n${t('receiptFooter')}` : t('receiptFooter')
+      };
+
+      await printReceipt(billData);
+      showTemporaryMsg(setBillingMsg, "✅ Receipt printed successfully!", "success", 5000);
+    } catch (error) {
+      console.error('Print error:', error);
+      showTemporaryMsg(setBillingMsg, `❌ Printing failed: ${error.message}`, "error", 5000);
+    }
   };
 
   // ── Calculation Helpers ────────────────────────────────────────────────────
