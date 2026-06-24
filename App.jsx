@@ -466,6 +466,21 @@ export default function App() {
     window.print();
   };
 
+  // Load Sample Bill for Testing
+  const handleLoadSampleBill = () => {
+    const sampleProducts = [
+      { id: 'P001', name: 'Rice (బియ్యం) - 5kg', price: 250.00 },
+      { id: 'P002', name: 'Cooking Oil (నూనె) - 1L', price: 180.00 },
+      { id: 'P003', name: 'Sugar (చక్కెర) - 1kg', price: 45.00 },
+      { id: 'P004', name: 'Tea Powder (టీ పొడి) - 250g', price: 120.00 },
+      { id: 'P005', name: 'Dal (పప్పు) - 1kg', price: 95.00 }
+    ];
+
+    setBillItems(sampleProducts.map(p => ({ product: p, qty: 1 })));
+    setCustomerName('రాముడు / Ramesh');
+    showTemporaryMsg(setBillingMsg, "✔ Sample bill loaded. Click Print to test formatting.", "success");
+  };
+
   // ── Calculation Helpers ────────────────────────────────────────────────────
   const totalItemsCount = billItems.reduce((sum, item) => sum + item.qty, 0);
   const grandTotalAmount = billItems.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
@@ -902,15 +917,26 @@ export default function App() {
                 <span className="summary-value grand-total">{formatINR(grandTotalAmount)}</span>
               </div>
             </div>
-            
-            <button 
-              className="btn btn-print"
-              onClick={handlePrint}
-              disabled={billItems.length === 0}
-            >
-              <Printer size={18} />
-              <span>{t('printInvoice')}</span>
-            </button>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                className="btn btn-ghost"
+                onClick={handleLoadSampleBill}
+                style={{ flex: 1 }}
+              >
+                <RefreshCw size={16} />
+                <span>Load Sample</span>
+              </button>
+              <button
+                className="btn btn-print"
+                onClick={handlePrint}
+                disabled={billItems.length === 0}
+                style={{ flex: 2 }}
+              >
+                <Printer size={18} />
+                <span>{t('printInvoice')}</span>
+              </button>
+            </div>
           </div>
 
         </section>
