@@ -233,7 +233,7 @@ export default function App() {
 
     const query = billingEntry.toLowerCase();
     const isNumericQuery = /^\d+$/.test(billingEntry.trim());
-    
+
     const filtered = products.filter(p => {
       if (isNumericQuery) {
         // For pure numeric queries, check exact ID match first
@@ -242,11 +242,19 @@ export default function App() {
       // For text queries, use fuzzy/partial matching
       return p.id.toLowerCase().includes(query) || p.name.toLowerCase().includes(query);
     });
-    
+
     setSuggestions(filtered.slice(0, 5)); // Limit to 5 suggestions
     setShowSuggestions(filtered.length > 0);
     setSelectedSuggestionIndex(0); // auto-highlight the first option
   }, [billingEntry, products]);
+
+  // Handle billing input change - only allow numbers (0-9)
+  const handleBillingInputChange = (e) => {
+    const value = e.target.value;
+    // Only allow digits (0-9)
+    const numericValue = value.replace(/[^0-9]/g, '');
+    setBillingEntry(numericValue);
+  };
 
   // Sync parkedBills with localStorage
   useEffect(() => {
@@ -1028,7 +1036,7 @@ export default function App() {
                 id="billing-entry-field"
                 placeholder={t('scanOrType')}
                 value={billingEntry}
-                onChange={(e) => setBillingEntry(e.target.value)}
+                onChange={handleBillingInputChange}
                 onKeyDown={handleBillingKeyDown}
                 onFocus={handleBillingInputFocus}
                 autoComplete="off"
@@ -1356,7 +1364,7 @@ export default function App() {
               inputMode="numeric"
               placeholder={t('scanOrType')}
               value={billingEntry}
-              onChange={(e) => setBillingEntry(e.target.value)}
+              onChange={handleBillingInputChange}
               onKeyDown={handleBillingKeyDown}
               className="massive-search-input"
               autoFocus
