@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bluetooth Thermal Printer Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 25px;
+      font-size: 13px;
+      color: #856404;
+    }
+
+    .warning strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border: 1px solid #2196F3;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 25px;
+      font-size: 13px;
+      color: #0d47a1;
+    }
+
+    .bill-preview {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .bill-preview h3 {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      flex: 1;
+      min-width: 150px;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      display: block;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      display: block;
+    }
+
+    .status.info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+      display: block;
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 25px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🖨️ Bluetooth Thermal Printer</h1>
+    <p class="subtitle">Direct printing to 58mm thermal printers via Web Bluetooth API</p>
+
+    <div class="warning" id="browserWarning" style="display: none;">
+      <strong>⚠️ Browser Not Supported</strong>
+      Web Bluetooth API is not available in this browser. Please use Chrome, Edge, or Opera on desktop/Android. iOS devices are not supported.
+    </div>
+
+    <div class="info-box">
+      <strong>📋 Requirements:</strong>
+      <ul style="margin-left: 20px; margin-top: 5px;">
+        <li>HTTPS connection (required for Web Bluetooth)</li>
+        <li>Bluetooth-enabled device</li>
+        <li>Compatible thermal printer (e.g., SEZNIK Veer 58mm)</li>
+        <li>Chrome, Edge, or Opera browser (Desktop/Android)</li>
+      </ul>
+    </div>
+
+    <div class="bill-preview">
+      <h3>Receipt Preview:</h3>
+      <pre id="billPreview">Loading...</pre>
+    </div>
+
+    <div class="button-group">
+      <button id="printBtn" class="btn-primary" disabled>
+        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"/>
+        </svg>
+        Print Receipt
+      </button>
+      <button id="testBtn" class="btn-secondary">
+        🧪 Test Connection
+      </button>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script type="module">
+    import { 
+      isBluetoothAvailable, 
+      printReceipt, 
+      EXAMPLE_BILL_DATA 
+    } from '../src/bluetoothPrinter.js?v=2';
+
+    // DOM Elements
+    const printBtn = document.getElementById('printBtn');
+    const testBtn = document.getElementById('testBtn');
+    const statusDiv = document.getElementById('status');
+    const browserWarning = document.getElementById('browserWarning');
+    const billPreview = document.getElementById('billPreview');
+
+    // Check browser support
+    if (!isBluetoothAvailable()) {
+      browserWarning.style.display = 'block';
+      printBtn.disabled = true;
+      testBtn.disabled = true;
+    } else {
+      printBtn.disabled = false;
+      testBtn.disabled = false;
+    }
+
+    // Display bill preview
+    function displayBillPreview() {
+      const bill = EXAMPLE_BILL_DATA;
+      let preview = '';
+      
+      preview += `     ${bill.storeName}\n`;
+      preview += `${bill.storeAddress}\n`;
+      preview += `Tel: ${bill.storePhone}\n`;
+      preview += `--------------------------------\n`;
+      preview += `Invoice: ${bill.invoiceNumber}\n`;
+      preview += `Date: ${bill.date}\n`;
+      preview += `--------------------------------\n`;
+      preview += `Item                       Price\n`;
+      preview += `--------------------------------\n`;
+      
+      bill.items.forEach(item => {
+        const qty = item.quantity > 1 ? ` x${item.quantity}` : '';
+        const name = (item.name + qty).padEnd(24);
+        const price = `₹${(item.price * item.quantity).toFixed(2)}`.padStart(8);
+        preview += `${name}${price}\n`;
+      });
+      
+      preview += `--------------------------------\n`;
+      preview += `${'Subtotal:'.padEnd(24)}${'₹' + bill.subtotal.toFixed(2).padStart(7)}\n`;
+      preview += `${'Tax:'.padEnd(24)}${'₹' + bill.tax.toFixed(2).padStart(7)}\n`;
+      preview += `${'Discount:'.padEnd(24)}${'-₹' + bill.discount.toFixed(2).padStart(6)}\n`;
+      preview += `${'TOTAL:'.padEnd(24)}${'₹' + bill.total.toFixed(2).padStart(7)}\n`;
+      preview += `--------------------------------\n`;
+      preview += `     Thank You! Visit Again!\n`;
+      
+      billPreview.textContent = preview;
+    }
+
+    displayBillPreview();
+
+    // Show status message
+    function showStatus(message, type = 'info') {
+      statusDiv.textContent = message;
+      statusDiv.className = `status ${type}`;
+      
+      if (type === 'success') {
+        setTimeout(() => {
+          statusDiv.style.display = 'none';
+        }, 5000);
+      }
+    }
+
+    // Print button handler
+    printBtn.addEventListener('click', async () => {
+      printBtn.disabled = true;
+      showStatus('Connecting to printer...', 'info');
+      
+      try {
+        await printReceipt(EXAMPLE_BILL_DATA);
+        showStatus('✅ Receipt printed successfully!', 'success');
+      } catch (error) {
+        console.error('Print error:', error);
+        showStatus(`❌ ${error.message}`, 'error');
+      } finally {
+        printBtn.disabled = false;
+      }
+    });
+
+    // Test connection button handler
+    testBtn.addEventListener('click', async () => {
+      testBtn.disabled = true;
+      showStatus('Testing Bluetooth connection...', 'info');
+      
+      try {
+        if (!navigator.bluetooth) {
+          throw new Error('Web Bluetooth API not available');
+        }
+
+        const device = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+        });
+
+        showStatus(`✅ Connected to: ${device.name}`, 'success');
+        
+        // Disconnect immediately
+        if (device.gatt.connected) {
+          device.gatt.disconnect();
+        }
+      } catch (error) {
+        if (error.name === 'NotFoundError') {
+          showStatus('Connection test cancelled', 'info');
+        } else {
+          showStatus(`❌ ${error.message}`, 'error');
+        }
+      } finally {
+        testBtn.disabled = false;
+      }
+    });
+
+    // Log protocol info
+    console.log('🔒 Protocol:', window.location.protocol);
+    console.log('🌐 Bluetooth Available:', isBluetoothAvailable());
+    console.log('📱 User Agent:', navigator.userAgent);
+  </script>
+</body>
+</html>
