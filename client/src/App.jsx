@@ -24,8 +24,6 @@ import {
 } from 'lucide-react';
 import { printReceipt } from './bluetoothPrinter';
 import { attachAudioInitListeners, playClick, playAddSuccess, playDelete, playPrint } from './soundEffects';
-import ThreeDLogo from './ThreeDLogo';
-import StockChartBackground from './StockChartBackground';
 
 const translations = {
   en: {
@@ -701,9 +699,6 @@ export default function App() {
 
   return (
     <React.Fragment>
-      {/* Futuristic Stock Market Chart Background */}
-      <StockChartBackground />
-
       {/* ═══════════════════════════════════════════════════════════════════════
          APPLICATION CONSOLE
          ═══════════════════════════════════════════════════════════════════════ */}
@@ -711,7 +706,7 @@ export default function App() {
         <div className="header-inner">
           <div className="header-logo">
             <div className="logo-container">
-              <ThreeDLogo />
+              <ShoppingBag size={24} className="text-white" />
             </div>
             <div className="logo-text">
               <h1>{t('shopName')}</h1>
