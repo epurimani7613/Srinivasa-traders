@@ -18,7 +18,7 @@ import {
   User
 } from 'lucide-react';
 import ThreeDLogo from './client/src/ThreeDLogo';
-import DataBackground from './client/src/DataBackground';
+import StockChartBackground from './client/src/StockChartBackground';
 
 const translations = {
   en: {
@@ -515,8 +515,8 @@ export default function App() {
 
   return (
     <React.Fragment>
-      {/* 3D Data Visualization Background */}
-      <DataBackground />
+      {/* Futuristic Stock Market Chart Background */}
+      <StockChartBackground />
 
       {/* ═══════════════════════════════════════════════════════════════════════
          APPLICATION CONSOLE
