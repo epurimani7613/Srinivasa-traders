@@ -61,6 +61,10 @@ const ESC_POS_COMMANDS = {
   CUT_PAPER: new Uint8Array([0x1D, 0x56, 0x00])
 };
 
+const RECEIPT_WIDTH_DOTS = 384;
+const RECEIPT_PADDING = 16;
+const RECEIPT_CONTENT_WIDTH = RECEIPT_WIDTH_DOTS - (RECEIPT_PADDING * 2);
+
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
@@ -123,6 +127,197 @@ function formatLineItem(name, price, maxWidth = 32) {
  */
 function formatCurrency(amount) {
   return '₹' + amount.toFixed(2);
+}
+
+function drawCenteredText(ctx, text, y, font, lineHeight) {
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  const lines = wrapText(ctx, text, RECEIPT_CONTENT_WIDTH);
+  lines.forEach(line => {
+    ctx.fillText(line, RECEIPT_WIDTH_DOTS / 2, y);
+    y += lineHeight;
+  });
+  return y;
+}
+
+function drawRule(ctx, y) {
+  ctx.beginPath();
+  ctx.setLineDash([6, 4]);
+  ctx.moveTo(RECEIPT_PADDING, y);
+  ctx.lineTo(RECEIPT_WIDTH_DOTS - RECEIPT_PADDING, y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  return y + 12;
+}
+
+function wrapText(ctx, text, maxWidth) {
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+
+  words.forEach(word => {
+    const testLine = line ? `${line} ${word}` : word;
+    if (ctx.measureText(testLine).width <= maxWidth) {
+      line = testLine;
+      return;
+    }
+
+    if (line) lines.push(line);
+
+    if (ctx.measureText(word).width <= maxWidth) {
+      line = word;
+      return;
+    }
+
+    let chunk = '';
+    Array.from(word).forEach(char => {
+      const testChunk = chunk + char;
+      if (ctx.measureText(testChunk).width <= maxWidth) {
+        chunk = testChunk;
+      } else {
+        if (chunk) lines.push(chunk);
+        chunk = char;
+      }
+    });
+    line = chunk;
+  });
+
+  if (line) lines.push(line);
+  return lines.length ? lines : [''];
+}
+
+function drawLeftRight(ctx, left, right, y, font, lineHeight) {
+  ctx.font = font;
+  ctx.textAlign = 'right';
+  const rightWidth = ctx.measureText(right).width;
+  const leftWidth = RECEIPT_CONTENT_WIDTH - rightWidth - 10;
+  ctx.textAlign = 'left';
+  const leftLines = wrapText(ctx, left, leftWidth);
+
+  leftLines.forEach((line, index) => {
+    ctx.fillText(line, RECEIPT_PADDING, y + (index * lineHeight));
+  });
+
+  ctx.textAlign = 'right';
+  ctx.fillText(right, RECEIPT_WIDTH_DOTS - RECEIPT_PADDING, y);
+  return y + Math.max(1, leftLines.length) * lineHeight;
+}
+
+async function buildRasterReceiptPayload(billData) {
+  if (typeof document === 'undefined') {
+    return buildReceiptPayload(billData);
+  }
+
+  if (document.fonts?.load) {
+    await Promise.all([
+      document.fonts.load('22px "Tiro Telugu"'),
+      document.fonts.load('28px "Tiro Telugu"')
+    ]);
+  }
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const fontStack = '"Tiro Telugu", "Noto Sans Telugu", "Nirmala UI", "Gautami", Arial, sans-serif';
+  const regularFont = `22px ${fontStack}`;
+  const smallFont = `18px ${fontStack}`;
+  const boldFont = `700 22px ${fontStack}`;
+  const titleFont = `700 30px ${fontStack}`;
+  const totalFont = `700 26px ${fontStack}`;
+  const lineHeight = 30;
+
+  canvas.width = RECEIPT_WIDTH_DOTS;
+  canvas.height = 2600;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#000';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.textBaseline = 'top';
+
+  let y = 16;
+  y = drawCenteredText(ctx, billData.storeName, y, titleFont, 38) + 4;
+  if (billData.storeAddress) {
+    y = drawCenteredText(ctx, billData.storeAddress, y, regularFont, lineHeight) + 2;
+  }
+  if (billData.storePhone) {
+    y = drawCenteredText(ctx, `Tel: ${billData.storePhone}`, y, regularFont, lineHeight) + 2;
+  }
+
+  y = drawRule(ctx, y + 4);
+  ctx.font = smallFont;
+  ctx.textAlign = 'left';
+  ctx.fillText(`Invoice: ${billData.invoiceNumber}`, RECEIPT_PADDING, y);
+  y += 24;
+  y = drawLeftRight(ctx, 'Date:', billData.date, y, smallFont, 24) + 4;
+  y = drawRule(ctx, y + 4);
+
+  ctx.font = boldFont;
+  y = drawLeftRight(ctx, 'Item', 'Amount', y, boldFont, lineHeight);
+  y = drawRule(ctx, y + 2);
+
+  billData.items.forEach(item => {
+    const quantity = item.quantity || 1;
+    const itemTotal = item.price * quantity;
+    const name = quantity > 1 ? `${item.name} x${quantity}` : item.name;
+    y = drawLeftRight(ctx, name, formatCurrency(itemTotal), y, regularFont, lineHeight) + 4;
+  });
+
+  y = drawRule(ctx, y + 4);
+  if (billData.subtotal !== undefined) {
+    y = drawLeftRight(ctx, 'Subtotal:', formatCurrency(billData.subtotal), y, regularFont, lineHeight);
+  }
+  if (billData.tax !== undefined && billData.tax > 0) {
+    y = drawLeftRight(ctx, 'Tax:', formatCurrency(billData.tax), y, regularFont, lineHeight);
+  }
+  if (billData.discount !== undefined && billData.discount > 0) {
+    y = drawLeftRight(ctx, 'Discount:', '-' + formatCurrency(billData.discount), y, regularFont, lineHeight);
+  }
+
+  y = drawRule(ctx, y + 4);
+  y = drawLeftRight(ctx, 'TOTAL:', formatCurrency(billData.total), y, totalFont, 36) + 6;
+  y = drawRule(ctx, y + 4);
+
+  if (billData.footer) {
+    y = drawCenteredText(ctx, billData.footer, y, regularFont, lineHeight) + 6;
+  }
+  y = drawCenteredText(ctx, 'Thank You! Visit Again!', y, regularFont, lineHeight) + 28;
+
+  const imageHeight = Math.ceil((y + 8) / 8) * 8;
+  const imageData = ctx.getImageData(0, 0, RECEIPT_WIDTH_DOTS, imageHeight);
+  const bytesPerRow = RECEIPT_WIDTH_DOTS / 8;
+  const raster = new Uint8Array(bytesPerRow * imageHeight);
+
+  for (let row = 0; row < imageHeight; row += 1) {
+    for (let colByte = 0; colByte < bytesPerRow; colByte += 1) {
+      let byte = 0;
+      for (let bit = 0; bit < 8; bit += 1) {
+        const x = (colByte * 8) + bit;
+        const pixelIndex = ((row * RECEIPT_WIDTH_DOTS) + x) * 4;
+        const r = imageData.data[pixelIndex];
+        const g = imageData.data[pixelIndex + 1];
+        const b = imageData.data[pixelIndex + 2];
+        const alpha = imageData.data[pixelIndex + 3];
+        const luminance = (0.299 * r) + (0.587 * g) + (0.114 * b);
+        if (alpha > 0 && luminance < 180) {
+          byte |= 0x80 >> bit;
+        }
+      }
+      raster[(row * bytesPerRow) + colByte] = byte;
+    }
+  }
+
+  const xL = bytesPerRow & 0xff;
+  const xH = (bytesPerRow >> 8) & 0xff;
+  const yL = imageHeight & 0xff;
+  const yH = (imageHeight >> 8) & 0xff;
+  const rasterHeader = new Uint8Array([0x1D, 0x76, 0x30, 0x00, xL, xH, yL, yH]);
+
+  return concatBuffers(
+    ESC_POS_COMMANDS.INIT,
+    rasterHeader,
+    raster,
+    ESC_POS_COMMANDS.PAPER_FEED
+  );
 }
 
 // ============================================================================
@@ -352,7 +547,7 @@ export async function printReceipt(billData) {
     
     // Build the receipt payload
     console.log('Building receipt payload...');
-    const payload = buildReceiptPayload(billData);
+    const payload = await buildRasterReceiptPayload(billData);
     console.log('Payload size:', payload.length, 'bytes');
     
     // Send data to printer in chunks (BLE has MTU limitations, typically 20-512 bytes)
@@ -365,8 +560,8 @@ export async function printReceipt(billData) {
       const chunk = payload.slice(i, i + CHUNK_SIZE);
       await characteristic.writeValue(chunk);
       
-      // Small delay between chunks to prevent buffer overflow
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Small delay between chunks to prevent buffer overflow.
+      await new Promise(resolve => setTimeout(resolve, 15));
       
       // Progress logging
       const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
