@@ -64,6 +64,10 @@ const ESC_POS_COMMANDS = {
 const RECEIPT_WIDTH_DOTS = 384;
 const RECEIPT_PADDING = 16;
 const RECEIPT_CONTENT_WIDTH = RECEIPT_WIDTH_DOTS - (RECEIPT_PADDING * 2);
+const FAST_BLE_CHUNK_SIZE = 120;
+const FALLBACK_BLE_CHUNK_SIZE = 20;
+const FAST_CHUNK_DELAY_MS = 2;
+const FALLBACK_CHUNK_DELAY_MS = 8;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -128,6 +132,8 @@ function formatLineItem(name, price, maxWidth = 32) {
 function formatCurrency(amount) {
   return '₹' + amount.toFixed(2);
 }
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 function drawCenteredText(ctx, text, y, font, lineHeight) {
   ctx.font = font;
@@ -317,6 +323,57 @@ async function buildRasterReceiptPayload(billData) {
     raster,
     ESC_POS_COMMANDS.PAPER_FEED
   );
+}
+
+async function writePrinterPayload(characteristic, payload, chunkSize, delayMs, useWithoutResponse) {
+  const totalChunks = Math.ceil(payload.length / chunkSize);
+  const writer = useWithoutResponse && typeof characteristic.writeValueWithoutResponse === 'function'
+    ? characteristic.writeValueWithoutResponse.bind(characteristic)
+    : characteristic.writeValue.bind(characteristic);
+
+  console.log(
+    `Sending ${payload.length} bytes in ${totalChunks} chunks of ${chunkSize} bytes` +
+    (useWithoutResponse ? ' without response...' : '...')
+  );
+
+  for (let i = 0; i < payload.length; i += chunkSize) {
+    const chunk = payload.slice(i, i + chunkSize);
+    await writer(chunk);
+
+    if (delayMs > 0) {
+      await sleep(delayMs);
+    }
+
+    const chunkNumber = Math.floor(i / chunkSize) + 1;
+    if (chunkNumber % 25 === 0 || chunkNumber === totalChunks) {
+      console.log(`Sent chunk ${chunkNumber}/${totalChunks}`);
+    }
+  }
+}
+
+async function sendPrinterPayload(characteristic, payload) {
+  const supportsWriteWithoutResponse =
+    characteristic.properties?.writeWithoutResponse &&
+    typeof characteristic.writeValueWithoutResponse === 'function';
+
+  try {
+    await writePrinterPayload(
+      characteristic,
+      payload,
+      FAST_BLE_CHUNK_SIZE,
+      FAST_CHUNK_DELAY_MS,
+      supportsWriteWithoutResponse
+    );
+  } catch (error) {
+    console.warn('Fast Bluetooth transfer failed, retrying with compatibility mode:', error);
+    await writePrinterPayload(
+      characteristic,
+      payload,
+      FALLBACK_BLE_CHUNK_SIZE,
+      FALLBACK_CHUNK_DELAY_MS,
+      false
+    );
+  }
 }
 
 // ============================================================================
@@ -544,30 +601,12 @@ export async function printReceipt(billData) {
     const payload = await buildRasterReceiptPayload(billData);
     console.log('Payload size:', payload.length, 'bytes');
     
-    // Send data to printer in chunks (BLE has MTU limitations, typically 20-512 bytes)
-    const CHUNK_SIZE = 20; // Conservative chunk size for maximum compatibility
-    const totalChunks = Math.ceil(payload.length / CHUNK_SIZE);
-    
-    console.log('Sending data in', totalChunks, 'chunks...');
-    
-    for (let i = 0; i < payload.length; i += CHUNK_SIZE) {
-      const chunk = payload.slice(i, i + CHUNK_SIZE);
-      await characteristic.writeValue(chunk);
-      
-      // Small delay between chunks to prevent buffer overflow.
-      await new Promise(resolve => setTimeout(resolve, 15));
-      
-      // Progress logging
-      const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
-      if (chunkNumber % 10 === 0 || chunkNumber === totalChunks) {
-        console.log(`Sent chunk ${chunkNumber}/${totalChunks}`);
-      }
-    }
+    await sendPrinterPayload(characteristic, payload);
     
     console.log('Receipt sent successfully!');
     
     // Wait a moment for printer to finish processing
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await sleep(250);
     
   } catch (error) {
     // Handle user cancellation gracefully
