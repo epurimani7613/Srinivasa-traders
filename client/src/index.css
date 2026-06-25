@@ -1648,6 +1648,23 @@ button[disabled] {
   text-align: right;
 }
 
+.rate-input {
+  width: 96px;
+  height: 34px;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text-primary);
+  font: 700 0.9rem var(--font-ui);
+  text-align: right;
+  padding: 0.35rem 0.45rem;
+}
+
+.rate-input:focus {
+  outline: 2px solid rgba(245, 158, 11, 0.45);
+  border-color: var(--accent-amber);
+}
+
 .bill-table tbody td.col-sl,
 .bill-table tbody td.col-qty,
 .bill-table tbody td.col-action {
@@ -1756,8 +1773,8 @@ button[disabled] {
 
   body {
     background: #fff !important;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 7pt;
+    font-family: 'Tiro Telugu', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', Arial, sans-serif !important;
+    font-size: 8.5pt;
     color: #000 !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -1800,8 +1817,8 @@ button[disabled] {
   }
 
   .receipt-shop-name {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 9pt;
+    font-family: 'Tiro Telugu', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', Arial, sans-serif !important;
+    font-size: 12pt;
     font-weight: bold;
     margin: 0 0 1pt 0;
     letter-spacing: 0.2pt;
@@ -1809,20 +1826,20 @@ button[disabled] {
   }
 
   .receipt-tagline {
-    font-size: 6pt;
+    font-size: 8pt;
     color: #000;
     margin: 0 0 1pt 0;
-    line-height: 1.1;
+    line-height: 1.25;
   }
 
   .receipt-date {
-    font-size: 6pt;
+    font-size: 7.25pt;
     margin: 1pt 0 0 0;
     color: #333;
   }
 
   .receipt-customer {
-    font-size: 7pt;
+    font-size: 8.5pt;
     font-weight: bold;
     margin: 0;
     padding: 2pt 1mm;
@@ -1841,7 +1858,8 @@ button[disabled] {
     width: 100%;
     max-width: 58mm;
     border-collapse: collapse;
-    font-size: 6pt;
+    font-family: 'Tiro Telugu', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', Arial, sans-serif !important;
+    font-size: 7.75pt;
     margin: 0;
     padding: 0 1mm;
     table-layout: fixed;
@@ -1849,11 +1867,14 @@ button[disabled] {
 
   .receipt-table th,
   .receipt-table td {
-    padding: 1pt 0.5pt;
+    padding: 1.75pt 0.75pt;
     text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.25;
   }
 
   .receipt-table thead {
@@ -1864,7 +1885,7 @@ button[disabled] {
   .receipt-table thead th {
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 5.5pt;
+    font-size: 7pt;
   }
 
   .receipt-table tbody tr {
@@ -1917,7 +1938,7 @@ button[disabled] {
   .receipt-row {
     display: flex;
     justify-content: space-between;
-    font-size: 7pt;
+    font-size: 8.25pt;
     padding: 1pt 0;
     margin: 0;
   }
@@ -1932,7 +1953,7 @@ button[disabled] {
   }
 
   .receipt-grand {
-    font-size: 8pt;
+    font-size: 9.5pt;
     font-weight: bold;
     border-top: 2px solid #000;
     padding-top: 2pt;
@@ -1940,20 +1961,20 @@ button[disabled] {
   }
 
   .receipt-grand .receipt-row-label {
-    font-size: 7pt;
+    font-size: 8.5pt;
   }
 
   .receipt-grand .receipt-row-value {
-    font-size: 9pt;
+    font-size: 10pt;
   }
 
   .receipt-footer {
     text-align: center;
-    font-size: 6pt;
+    font-size: 8pt;
     margin: 6pt 1mm 0 1mm;
     padding: 3pt 0 0 0;
     border-top: 1px dashed #000;
-    line-height: 1.2;
+    line-height: 1.3;
   }
 }
 

@@ -467,11 +467,11 @@ export default function App() {
         }
       });
 
-      // If this item is currently in the bill, update its information
+      // Keep invoice rates independent from inventory edits.
       setBillItems(prevBill => 
         prevBill.map(item => 
           item.product.id === id 
-            ? { ...item, product: data.product } 
+            ? { ...item, product: { ...item.product, id: data.product.id, name: data.product.name } } 
             : item
         )
       );
@@ -561,7 +561,7 @@ export default function App() {
         );
       } else {
         showTemporaryMsg(setBillingMsg, `✔ "${product.name}" added to bill.`, "success");
-        return [...prev, { product, qty: 1 }];
+        return [...prev, { product: { ...product }, rate: Number(product.price) || 0, qty: 1 }];
       }
     });
     setBillingEntry('');
@@ -624,6 +624,20 @@ export default function App() {
   const handleQtyStep = (index, val) => {
     playClick();
     handleQtyChange(index, val);
+  };
+
+  const getBillRate = (item) => Number(item.rate ?? item.product.price) || 0;
+
+  const handleRateChange = (index, val) => {
+    const nextRate = Number.parseFloat(val);
+    setBillItems(prev => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        rate: val === '' ? '' : Number.isFinite(nextRate) && nextRate >= 0 ? nextRate : 0
+      };
+      return updated;
+    });
   };
 
   // Remove row from bill
@@ -722,7 +736,7 @@ export default function App() {
         }),
         items: billItems.map(item => ({
           name: item.product.name,
-          price: item.product.price,
+          price: getBillRate(item),
           quantity: item.qty
         })),
         subtotal: grandTotalAmount,
@@ -751,7 +765,7 @@ export default function App() {
 
   // ── Calculation Helpers ────────────────────────────────────────────────────
   const totalItemsCount = billItems.reduce((sum, item) => sum + item.qty, 0);
-  const grandTotalAmount = billItems.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+  const grandTotalAmount = billItems.reduce((sum, item) => sum + (getBillRate(item) * item.qty), 0);
 
   const formatINR = (amount) => {
     return '₹ ' + Number(amount).toLocaleString('en-IN', {
@@ -890,7 +904,7 @@ export default function App() {
                         <div className="bill-meta">
                           <span className="bill-items">{bill.items.length} items</span>
                           <span className="bill-total">
-                            {formatINR(bill.items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0))}
+                            {formatINR(bill.items.reduce((sum, item) => sum + (getBillRate(item) * (item.qty || item.quantity || 1)), 0))}
                           </span>
                         </div>
                         <div className="bill-time">
@@ -1292,7 +1306,18 @@ export default function App() {
                           <button type="button" className="quick-add-btn" onClick={() => handleQtyStep(index, item.qty + 10)}>+10</button>
                         </div>
                       </td>
-                      <td className="col-price">{formatINR(item.product.price)}</td>
+                      <td className="col-price">
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          className="rate-input"
+                          min="0"
+                          step="0.01"
+                          value={item.rate ?? item.product.price}
+                          onChange={(e) => handleRateChange(index, e.target.value)}
+                          aria-label={`Rate for ${item.product.name}`}
+                        />
+                      </td>
                       <td className="col-qty">
                         <div className="qty-stepper">
                           <button 
@@ -1320,7 +1345,7 @@ export default function App() {
                           </button>
                         </div>
                       </td>
-                      <td className="col-total">{formatINR(item.product.price * item.qty)}</td>
+                      <td className="col-total">{formatINR(getBillRate(item) * item.qty)}</td>
                       <td className="col-action">
                         <button 
                           className="btn btn-danger btn-sm"
@@ -1465,9 +1490,9 @@ export default function App() {
                   <div style={{ wordBreak: 'break-word' }}>{item.product.name}</div>
                   <div style={{ fontSize: '7.5pt', color: '#555' }}>[ID: {item.product.id}]</div>
                 </td>
-                <td>{formatINR(item.product.price)}</td>
+                <td>{formatINR(getBillRate(item))}</td>
                 <td style={{ textAlign: 'center' }}>{item.qty}</td>
-                <td>{formatINR(item.product.price * item.qty)}</td>
+                <td>{formatINR(getBillRate(item) * item.qty)}</td>
               </tr>
             ))}
           </tbody>
