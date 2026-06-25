@@ -724,7 +724,7 @@ export default function App() {
     try {
       const billData = {
         storeName: t('shopName'),
-        storeAddress: t('shopTagline'),
+        storeAddress: '',
         storePhone: '',
         invoiceNumber: `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
         date: new Date().toLocaleString('en-IN', {
@@ -743,7 +743,7 @@ export default function App() {
         tax: 0,
         discount: 0,
         total: grandTotalAmount,
-        footer: customerName ? `${t('customerName')}: ${customerName}\n${t('receiptFooter')}` : t('receiptFooter')
+        footer: ''
       };
 
       await printReceipt(billData);
@@ -1462,7 +1462,6 @@ export default function App() {
       <div className="print-area">
         <div className="receipt-header">
           <h1 className="receipt-shop-name">{t('shopName')}</h1>
-          <p className="receipt-tagline">{t('shopTagline')}</p>
           {customerName && (
             <p className="receipt-customer">
               {t('customerName')}: <strong>{customerName}</strong>
@@ -1511,9 +1510,6 @@ export default function App() {
           </div>
         </div>
 
-        <p className="receipt-footer">
-          {t('receiptFooter')}
-        </p>
       </div>
 
       {/* ── Mobile Full-screen Search Overlay ── */}

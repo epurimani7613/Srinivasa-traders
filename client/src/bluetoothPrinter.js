@@ -280,7 +280,6 @@ async function buildRasterReceiptPayload(billData) {
   if (billData.footer) {
     y = drawCenteredText(ctx, billData.footer, y, regularFont, lineHeight) + 6;
   }
-  y = drawCenteredText(ctx, 'Thank You! Visit Again!', y, regularFont, lineHeight) + 28;
 
   const imageHeight = Math.ceil((y + 8) / 8) * 8;
   const imageData = ctx.getImageData(0, 0, RECEIPT_WIDTH_DOTS, imageHeight);
@@ -452,11 +451,6 @@ function buildReceiptPayload(billData) {
     payload.push(encodeText(billData.footer));
     payload.push(ESC_POS_COMMANDS.LINE_FEED);
   }
-  
-  // Thank you message
-  payload.push(ESC_POS_COMMANDS.ALIGN_CENTER);
-  payload.push(encodeText('Thank You! Visit Again!'));
-  payload.push(ESC_POS_COMMANDS.LINE_FEED);
   
   // Paper feed for easy tear-off
   payload.push(ESC_POS_COMMANDS.PAPER_FEED);
