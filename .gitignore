@@ -3,3 +3,5 @@ client/node_modules
 .env
 .DS_Store
 client/dist
+telugu-receipt-preview.png
+telugu-receipt-raster.bin
