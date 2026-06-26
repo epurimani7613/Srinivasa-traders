@@ -264,14 +264,11 @@ async function buildRasterReceiptPayload(billData) {
   billData.items.forEach(item => {
     const quantity = item.quantity || 1;
     const itemTotal = item.price * quantity;
-    const name = quantity > 1 ? `${item.name} x${quantity}` : item.name;
-    y = drawLeftRight(ctx, name, formatCurrency(itemTotal), y, regularFont, lineHeight) + 4;
+    y = drawLeftRight(ctx, item.name, formatCurrency(itemTotal), y, regularFont, lineHeight);
+    y = drawLeftRight(ctx, `ID: ${item.productId || '-'}  Qty: ${quantity}`, '', y, smallFont, 24) + 4;
   });
 
   y = drawRule(ctx, y + 4);
-  if (billData.subtotal !== undefined) {
-    y = drawLeftRight(ctx, 'Subtotal:', formatCurrency(billData.subtotal), y, regularFont, lineHeight);
-  }
   if (billData.tax !== undefined && billData.tax > 0) {
     y = drawLeftRight(ctx, 'Tax:', formatCurrency(billData.tax), y, regularFont, lineHeight);
   }
@@ -390,10 +387,10 @@ async function sendPrinterPayload(characteristic, payload) {
  * @param {string} billData.invoiceNumber - Invoice/Bill number
  * @param {string} billData.date - Date string
  * @param {Array} billData.items - Array of line items
+ * @param {string} billData.items[].productId - Product ID/code
  * @param {string} billData.items[].name - Item name
  * @param {number} billData.items[].price - Item price
  * @param {number} billData.items[].quantity - Item quantity (optional, default: 1)
- * @param {number} billData.subtotal - Subtotal amount (optional)
  * @param {number} billData.tax - Tax amount (optional)
  * @param {number} billData.discount - Discount amount (optional)
  * @param {number} billData.total - Total amount
@@ -458,24 +455,19 @@ function buildReceiptPayload(billData) {
     
     // Item name and price
     const itemLine = formatLineItem(
-      quantity > 1 ? `${item.name} x${quantity}` : item.name,
+      item.name,
       formatCurrency(itemTotal),
       32
     );
     payload.push(encodeText(itemLine));
+    payload.push(ESC_POS_COMMANDS.LINE_FEED);
+    payload.push(encodeText(`ID: ${item.productId || '-'}  Qty: ${quantity}`));
     payload.push(ESC_POS_COMMANDS.LINE_FEED);
   });
   
   // Separator line
   payload.push(encodeText('--------------------------------'));
   payload.push(ESC_POS_COMMANDS.LINE_FEED);
-  
-  // Subtotal (if provided)
-  if (billData.subtotal !== undefined) {
-    const subtotalLine = formatLineItem('Subtotal:', formatCurrency(billData.subtotal), 32);
-    payload.push(encodeText(subtotalLine));
-    payload.push(ESC_POS_COMMANDS.LINE_FEED);
-  }
   
   // Tax (if provided)
   if (billData.tax !== undefined && billData.tax > 0) {
@@ -649,12 +641,11 @@ export const EXAMPLE_BILL_DATA = {
     minute: '2-digit'
   }),
   items: [
-    { name: 'Rice (5kg)', price: 250.00, quantity: 2 },
-    { name: 'Cooking Oil (1L)', price: 180.00, quantity: 1 },
-    { name: 'Sugar (1kg)', price: 45.00, quantity: 3 },
-    { name: 'Tea Powder (250g)', price: 120.00, quantity: 1 }
+    { productId: 'RICE5', name: 'Rice (5kg)', price: 250.00, quantity: 2 },
+    { productId: 'OIL1', name: 'Cooking Oil (1L)', price: 180.00, quantity: 1 },
+    { productId: 'SUG1', name: 'Sugar (1kg)', price: 45.00, quantity: 3 },
+    { productId: 'TEA250', name: 'Tea Powder (250g)', price: 120.00, quantity: 1 }
   ],
-  subtotal: 1015.00,
   tax: 50.75,
   discount: 15.00,
   total: 1050.75,

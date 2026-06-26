@@ -735,11 +735,11 @@ export default function App() {
           minute: '2-digit'
         }),
         items: billItems.map(item => ({
+          productId: item.product.id,
           name: item.product.name,
           price: getBillRate(item),
           quantity: item.qty
         })),
-        subtotal: grandTotalAmount,
         tax: 0,
         discount: 0,
         total: grandTotalAmount,
@@ -1386,10 +1386,6 @@ export default function App() {
                   <span className="summary-value">{totalItemsCount} items</span>
                 </div>
                 <div className="summary-row">
-                  <span className="summary-label">Subtotal</span>
-                  <span className="summary-value">{formatINR(grandTotalAmount)}</span>
-                </div>
-                <div className="summary-row">
                   <span className="summary-label">Discount</span>
                   <span className="summary-value text-green-400">— ₹0.00</span>
                 </div>
@@ -1475,9 +1471,10 @@ export default function App() {
           <thead>
             <tr>
               <th>{t('colSl')}</th>
+              <th>{t('colCode')}</th>
               <th>{t('colName')}</th>
               <th>{t('colRate')}</th>
-              <th>{t('colQty')[0] || t('colQty')}</th> {/* short abbreviation for table */}
+              <th>{t('colQty')}</th>
               <th>{t('colTotal')}</th>
             </tr>
           </thead>
@@ -1485,9 +1482,9 @@ export default function App() {
             {billItems.map((item, index) => (
               <tr key={`print-${item.product.id}-${index}`}>
                 <td>{index + 1}</td>
+                <td>{item.product.id}</td>
                 <td>
-                  <div style={{ wordBreak: 'break-word' }}>{item.product.name}</div>
-                  <div style={{ fontSize: '7.5pt', color: '#555' }}>[ID: {item.product.id}]</div>
+                  <div className="receipt-item-name">{item.product.name}</div>
                 </td>
                 <td>{formatINR(getBillRate(item))}</td>
                 <td style={{ textAlign: 'center' }}>{item.qty}</td>

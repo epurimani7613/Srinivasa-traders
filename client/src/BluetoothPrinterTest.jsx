@@ -117,17 +117,17 @@ export default function BluetoothPrinterTest() {
     lines.push(`Date: ${billData.date}`);
     lines.push('--------------------------------');
     lines.push('Item                       Price');
+    lines.push('Product ID              Quantity');
     lines.push('--------------------------------');
     
     billData.items.forEach(item => {
-      const qty = item.quantity > 1 ? ` x${item.quantity}` : '';
-      const name = (item.name + qty).padEnd(24);
+      const name = item.name.padEnd(24);
       const price = `₹${(item.price * item.quantity).toFixed(2)}`.padStart(8);
       lines.push(`${name}${price}`);
+      lines.push(`${`ID: ${item.productId || '-'}`.padEnd(24)}${`Qty: ${item.quantity}`.padStart(8)}`);
     });
     
     lines.push('--------------------------------');
-    lines.push(`${'Subtotal:'.padEnd(24)}${'₹' + billData.subtotal.toFixed(2).padStart(7)}`);
     lines.push(`${'Tax:'.padEnd(24)}${'₹' + billData.tax.toFixed(2).padStart(7)}`);
     lines.push(`${'Discount:'.padEnd(24)}${'-₹' + billData.discount.toFixed(2).padStart(6)}`);
     lines.push(`${'TOTAL:'.padEnd(24)}${'₹' + billData.total.toFixed(2).padStart(7)}`);

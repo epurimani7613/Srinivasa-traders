@@ -10,11 +10,19 @@
   padding: 0;
 }
 
+@font-face {
+  font-family: 'Noto Sans Telugu Local';
+  src: url('../../fonts/NotoSansTelugu-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* HSL Color System - Dark Theme (Default) */
   --bg-gradient-start: HSL(222, 47%, 11%);
   --bg-gradient-end: HSL(228, 56%, 6%);
-  
+
   --glass-bg: rgba(15, 23, 42, 0.45);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-highlight: rgba(255, 255, 255, 0.03);
@@ -39,7 +47,8 @@
   --accent-rose-hover: HSL(347, 87%, 52%);
   --accent-rose-glow: rgba(244, 63, 94, 0.2);
 
-  --font-brand: 'Tiro Telugu', Georgia, serif;
+  --font-brand: 'Noto Sans Telugu Local', 'Noto Sans Telugu', 'Tiro Telugu', Georgia, serif;
+  --font-telugu: 'Noto Sans Telugu Local', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', Arial, sans-serif;
   --font-ui: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   
   --radius-sm: 8px;
@@ -1773,8 +1782,9 @@ button[disabled] {
 
   body {
     background: #fff !important;
-    font-family: 'Tiro Telugu', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', Arial, sans-serif !important;
-    font-size: 8.5pt;
+    font-family: var(--font-telugu) !important;
+    font-size: 8.75pt;
+    line-height: 1.38;
     color: #000 !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -1805,23 +1815,24 @@ button[disabled] {
     max-width: 58mm !important;
     min-width: 58mm !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 1.5mm !important;
     overflow-x: hidden !important;
   }
 
   .receipt-header {
     text-align: center;
-    margin: 0 0 2pt 0;
+    margin: 0 0 3pt 0;
     border-bottom: 1px dashed #000;
-    padding: 2pt 1mm 2pt 1mm;
+    padding: 3pt 0 4pt 0;
   }
 
   .receipt-shop-name {
-    font-family: 'Tiro Telugu', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', Arial, sans-serif !important;
-    font-size: 12pt;
+    font-family: var(--font-telugu) !important;
+    font-size: 11.5pt;
     font-weight: bold;
-    margin: 0 0 1pt 0;
-    letter-spacing: 0.2pt;
+    margin: 0 0 2pt 0;
+    letter-spacing: 0;
+    line-height: 1.35;
     text-transform: uppercase;
   }
 
@@ -1833,48 +1844,50 @@ button[disabled] {
   }
 
   .receipt-date {
-    font-size: 7.25pt;
-    margin: 1pt 0 0 0;
+    font-size: 7.5pt;
+    margin: 2pt 0 0 0;
     color: #333;
+    line-height: 1.35;
   }
 
   .receipt-customer {
-    font-size: 8.5pt;
+    font-size: 8.75pt;
     font-weight: bold;
-    margin: 0;
-    padding: 2pt 1mm;
+    margin: 2pt 0 0 0;
+    padding: 2pt 0;
     border-top: 1px dashed #000;
     border-bottom: 1px dashed #000;
     text-align: center;
+    line-height: 1.35;
   }
 
   .receipt-rule {
     border: none;
     border-top: 1px dashed #000;
-    margin: 3pt 1mm;
+    margin: 4pt 0;
   }
 
   .receipt-table {
     width: 100%;
-    max-width: 58mm;
+    max-width: 55mm;
     border-collapse: collapse;
-    font-family: 'Tiro Telugu', 'Noto Sans Telugu', 'Nirmala UI', 'Gautami', Arial, sans-serif !important;
-    font-size: 7.75pt;
+    font-family: var(--font-telugu) !important;
+    font-size: 7.35pt;
     margin: 0;
-    padding: 0 1mm;
+    padding: 0;
     table-layout: fixed;
   }
 
   .receipt-table th,
   .receipt-table td {
-    padding: 1.75pt 0.75pt;
+    padding: 2.25pt 0.75pt;
     text-align: left;
     overflow: visible;
     text-overflow: clip;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: normal;
-    line-height: 1.25;
+    line-height: 1.38;
   }
 
   .receipt-table thead {
@@ -1885,7 +1898,8 @@ button[disabled] {
   .receipt-table thead th {
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 7pt;
+    font-size: 6.6pt;
+    line-height: 1.25;
   }
 
   .receipt-table tbody tr {
@@ -1896,7 +1910,6 @@ button[disabled] {
     border-bottom: none;
   }
 
-  /* Optimized for 32-character width (58mm ≈ 220px ≈ 32 chars in Courier) */
   .receipt-table th:nth-child(1),
   .receipt-table td:nth-child(1) {
     text-align: left;
@@ -1906,41 +1919,54 @@ button[disabled] {
   .receipt-table th:nth-child(2),
   .receipt-table td:nth-child(2) {
     text-align: left;
-    width: 40%;
+    width: 17%;
   }
   
   .receipt-table th:nth-child(3),
   .receipt-table td:nth-child(3) {
-    text-align: right;
-    width: 18%;
+    text-align: left;
+    width: 31%;
   }
   
   .receipt-table th:nth-child(4),
   .receipt-table td:nth-child(4) {
-    text-align: center;
-    width: 10%;
+    text-align: right;
+    width: 16%;
   }
   
   .receipt-table th:nth-child(5),
   .receipt-table td:nth-child(5) {
+    text-align: center;
+    width: 11%;
+  }
+  
+  .receipt-table th:nth-child(6),
+  .receipt-table td:nth-child(6) {
     text-align: right;
-    width: 24%;
+    width: 17%;
+  }
+
+  .receipt-item-name {
+    word-break: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
   }
 
   .receipt-totals {
-    margin: 3pt 1mm 0 1mm;
+    margin: 4pt 0 0 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1pt;
+    gap: 1.5pt;
   }
 
   .receipt-row {
     display: flex;
     justify-content: space-between;
-    font-size: 8.25pt;
-    padding: 1pt 0;
+    font-size: 8.5pt;
+    padding: 1.5pt 0;
     margin: 0;
+    line-height: 1.35;
   }
 
   .receipt-row-label {
@@ -1953,11 +1979,12 @@ button[disabled] {
   }
 
   .receipt-grand {
-    font-size: 9.5pt;
+    font-size: 9.75pt;
     font-weight: bold;
     border-top: 2px solid #000;
-    padding-top: 2pt;
-    margin-top: 1pt;
+    padding-top: 3pt;
+    margin-top: 2pt;
+    line-height: 1.35;
   }
 
   .receipt-grand .receipt-row-label {
