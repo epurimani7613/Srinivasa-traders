@@ -1872,7 +1872,7 @@ button[disabled] {
     max-width: 55mm;
     border-collapse: collapse;
     font-family: var(--font-telugu) !important;
-    font-size: 7.35pt;
+    font-size: 7.55pt;
     margin: 0;
     padding: 0;
     table-layout: fixed;
@@ -1932,6 +1932,8 @@ button[disabled] {
   .receipt-table td:nth-child(4) {
     text-align: right;
     width: 16%;
+    font-size: 7.75pt;
+    font-weight: 700;
   }
   
   .receipt-table th:nth-child(5),
@@ -1944,12 +1946,16 @@ button[disabled] {
   .receipt-table td:nth-child(6) {
     text-align: right;
     width: 17%;
+    font-size: 7.85pt;
+    font-weight: 700;
   }
 
   .receipt-item-name {
+    font-size: 7.95pt;
+    font-weight: 700;
     word-break: normal;
     overflow-wrap: anywhere;
-    line-height: 1.4;
+    line-height: 1.42;
   }
 
   .receipt-totals {
@@ -1963,7 +1969,7 @@ button[disabled] {
   .receipt-row {
     display: flex;
     justify-content: space-between;
-    font-size: 8.5pt;
+    font-size: 8.75pt;
     padding: 1.5pt 0;
     margin: 0;
     line-height: 1.35;
@@ -1979,7 +1985,7 @@ button[disabled] {
   }
 
   .receipt-grand {
-    font-size: 9.75pt;
+    font-size: 10.25pt;
     font-weight: bold;
     border-top: 2px solid #000;
     padding-top: 3pt;
@@ -1992,7 +1998,7 @@ button[disabled] {
   }
 
   .receipt-grand .receipt-row-value {
-    font-size: 10pt;
+    font-size: 10.5pt;
   }
 
   .receipt-footer {
